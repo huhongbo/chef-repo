@@ -1,0 +1,1 @@
+{"name":"chef-client","description":"chef client cron","json_class":"Chef::Role","default_attributes":{},"override_attributes":{},"chef_type":"role","run_list":["recipe[chef-client]","recipe[chef-client::cron]","recipe[chef-client::delete_validation]","recipe[mcollective-chef::server]","role[ohai-plugins]","recipe[clean-logs::custom]"],"env_run_lists":{}}

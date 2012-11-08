@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+# system default plugin
+# fix cup idle value
+# code dn365
+# v0.03
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require 'sigar'
+
+class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to metric",
+    :short => "-s SCHEME",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}.system.system"
+    
+  def sprintf_int(num)
+    num = 0 unless num
+    sprintf("%.0f", num*100)
+  end
+  
+  def convert_integers(values)
+    values.each_with_index do |value, index|
+      begin
+        converted = Integer(value)
+        values[index] = converted
+      rescue ArgumentError
+      end
+    end
+    values
+  end
+  
+  def value_sum(values)
+    temp_arry = []
+    begin
+      values.each_with_index {|v,i| temp_arry << [v,values[i+1]] if values[i+1] }
+      sums = temp_arry.map {|i| i.reduce(:-)}.inject(:+).abs
+    rescue
+    end
+    return ave = sums / temp_arry.count
+  end
+  
+  def cpu_quaitity_total
+    arry_sys,arry_total,arry_user,arry_wait = [],[],[],[]
+    5.times do
+      cpu = Sigar.new.cpu
+      arry_sys << cpu.sys
+      arry_total << cpu.total
+      arry_user << cpu.user
+      arry_wait << cpu.wait
+      sleep 1
+    end
+
+    cpu_sys = value_sum(arry_sys)
+    cpu_total = value_sum(arry_total)
+    cpu_user = value_sum(arry_user)
+    cpu_wait = value_sum(arry_wait)
+    
+    return cpu_sys, cpu_total, cpu_user, cpu_wait
+  end
+
+  def run
+    dname = "system"   
+    sigar = Sigar.new
+    sys_info = sigar.sys_info.name.downcase
+    mem, swap = sigar.mem, sigar.swap 
+    
+    if sys_info == "hpux" or sys_info == "aix"
+      sar_value = convert_integers(`sar -u 1 3|tail -n1`.split(" "))
+      cpu_user = sar_value[1]
+      cpu_sys = sar_value[2]
+      cpu_wait = sar_value[3]
+      cup_idle = sar_value[4]
+    else
+      cpu_sys, cpu_total, cpu_user, cpu_wait = cpu_quaitity_total
+      
+      #puts cpu_sys, cpu_total, cpu_user, cpu_wait
+    
+      cpu_user = sprintf_int(cpu_user / cpu_total.to_f)
+      cpu_sys = sprintf_int(cpu_sys / cpu_total.to_f)
+      cpu_wait = sprintf_int(cpu_wait / cpu_total.to_f)  
+        
+      cpu_s = cpu_user.to_i + cpu_wait.to_i  + cpu_sys.to_i
+      cup_idle = 100 - cpu_s
+    end
+    
+    memory_used = mem.used.to_f / mem.total
+    memory_sys = (mem.used - mem.actual_used).to_f / mem.total
+    swap_used = swap.used.to_f / swap.total
+    
+    timestamp = Time.now.to_i
+    metrics = {
+      :cpu => {
+        :user => cpu_user,
+        :sys =>  cpu_sys,
+        :idle => cup_idle,
+        :wait => cpu_wait 
+      },
+      :memory => {
+        :mem_used => sprintf_int(memory_used),
+        :mem_sys => sprintf_int(memory_sys),
+        :swap_used => sprintf_int(swap_used)
+      }
+    }
+        
+    metrics.each do |parent, children|
+      children.each do |child, value|
+        output ["<%= node["node"]["app"] %>", config[:scheme], dname, parent, child].join("."), value, timestamp
+      end
+    end
+    ok  
+  end
+end

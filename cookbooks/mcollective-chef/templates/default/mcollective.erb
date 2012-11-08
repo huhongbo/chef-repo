@@ -1,0 +1,127 @@
+#!/bin/sh
+#
+# mcollective   Application Server for STOMP based agents
+#
+# chkconfig:    345 24 76
+#
+# description:  mcollective lets you build powerful Stomp compatible middleware clients in ruby without having to worry too
+#               much about all the setup and management of a Stomp connection, it also provides stats, logging and so forth
+#               as a bonus.
+#
+### BEGIN INIT INFO
+# Provides:          mcollective
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+<% if node.os =="linux" %>
+mcollectived="mcollectived"
+pidfile="/var/run/mcollectived.pid"
+<% elsif node.os == "hpux" %>
+mcollectived="/usr/local/ruby1.9/bin/mcollectived"
+pidfile="/var/run/mcollectived.pid"
+psfile=`ps -ef|grep mcollective|grep ruby|grep -v grep|awk '{print $2}'`
+<% elsif node.os == "aix" %>
+mcollectived="/opt/freeware/ruby1.9/bin/mcollectived"
+pidfile="/var/chef/run/mcollectived.pid"
+<% end %>
+
+# Lockfile
+lock="/var/chef/lock/mcollective"
+
+
+# See how we were called.
+
+start()
+{
+        echo -n "Starting mcollective: "
+        if [ -f ${lock} ]; then
+            # we were not shut down correctly
+            if [ -s ${pidfile} ]; then
+                kill `cat ${pidfile}` >/dev/null 2>&1
+            fi		
+            rm -f ${pidfile}
+            rm -f ${lock}
+            sleep 2
+        fi
+
+        rm -f ${pidfile}
+
+        ${mcollectived} --pid=${pidfile} --config="/etc/mcollective/server.cfg"
+        touch $lock
+
+}
+stop_mc()
+{
+        echo -n "Shutting down mcollective: "
+		
+		<% unless node.os == "hpux" %>
+        if [ -s ${pidfile} ]; then
+            kill `cat ${pidfile}` >/dev/null 2>&1
+        fi
+        rm -f ${pidfile}
+
+        log_success_msg
+        rm -f $lock
+		<% else %>
+		kill $psfile >/dev/null 2>&1
+		
+		rm -f ${pidfile}
+
+        log_success_msg
+        rm -f $lock
+		<% end %>
+}
+
+restart()
+{
+        stop_mc
+        sleep 2
+        start
+}
+
+status()
+{
+	<% unless node.os == "hpux" %>
+        if [ -f ${lock} ]; then
+           if [ -s ${pidfile} ]; then
+             if [ -e /proc/`cat ${pidfile}` ]; then
+                echo "mcollectived (`cat ${pidfile}`) is running"                   
+              else
+                echo "mcollectived (`cat ${pidfile}`) is NOT running"                   
+              fi
+            fi
+        else
+            echo "mcollectived: service not started"
+            
+        fi
+	<% else %>
+		if [ `ps -ef|grep mcollective|grep -v grep|awk '{print $2}'|wc -l` -ne 0 ]; then
+	    echo "mcollectived (${psfile}) is running"	            
+		else
+		echo "mcollectived: service not started error"
+		fi
+	<% end %>
+}
+case $1 in
+	'start')
+		start
+		;;
+	'stop')
+		stop_mc
+		;;
+	'restart')
+		restart
+		;;
+	'status')
+		status
+		;;
+	*)
+       echo "Usage: mcollectived {start|stop|restart|status}"
+       ;;
+
+esac
+exit $?

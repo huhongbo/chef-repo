@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+#
+# System Cpu others
+# ===
+# code dn365
+# v0.0.2
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require 'sigar'
+
+class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}.cpu"
+    
+  def sprintf_int(num)
+    return num.nil? ? 0 : sprintf("%.0f", num.to_i * 100)
+  end
+  
+  def memd_percent(memory_value)
+    memd = Sigar.new.mem
+    memd_total = memd.total.to_f / 1024
+    value = sprintf_int(memory_value / memd_total.to_f)
+    return value
+  end
+
+  def run
+    dname = "system"
+    u_dir = "users"
+    sigar = Sigar.new
+    uname = sigar.sys_info.name.downcase
+    case uname
+    when "hpux"
+      ps = %x[UNIX95=1 ps -Ax -o pid,pcpu,user,vsz | grep -v PID]
+    when "aix"
+      ps = %x[ps -eo pid,pcpu,user,rssize | grep -v PID]
+    when "linux"
+      ps = %x[ps -eo pid,pcpu,user,vsz | grep -v PID]
+    end
+     
+    arry, mate = [],[]
+    ps.each_line {|i| arry << i.split(" ") }
+    user_value_hash = arry.group_by {|i| i[2] }
+    user_value_hash.each do |k,v|
+      name = k
+      user_count = v.count
+      cpu_total = v.map {|i| i[1].to_i}.reduce(:+)
+      mem_total = v.map {|i| i[3].to_i}.reduce(:+)
+      mate << [name,{:cpu_total => cpu_total,:mem_total => memd_percent(mem_total),:count => user_count}]
+    end
+    
+    mate_hash = Hash[mate]
+    timestamp = Time.now.to_i 
+    mate_hash.each do |parent,children|
+      children.each do |child,value|
+        output ["<%= node["node"]["app"] %>", config[:scheme], dname, u_dir, parent, child].join("."), value, timestamp
+      end
+    end
+    ok
+  end
+end
+

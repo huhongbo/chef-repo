@@ -1,0 +1,20 @@
+{
+	"checks": {
+		"cpu": {
+			"handlers":["default"],	  	
+	      	"command": "/etc/sensu/plugins/check_graph.rb -t 'sumSeries(<%= node["node"]["app"] + "." + node.hostname  %>.system.cpu.user,<%= node["node"]["app"] + "." + node.hostname  %>.system.cpu.sys)' -s 300 -w 90 -c 95 -n 'CPU avg usage'",
+	      	"subscribers":["system"],
+	      	"notification":"CPU AVG HIGH",
+	      	"interval": 300,
+	      	"refresh": 3600
+		},
+		"stdev_cpu": {
+			"handlers":["default"],
+			"command": "/etc/sensu/plugins/check_graph.rb -t 'stdev(movingAverage(sumSeries(<%= node["node"]["app"] + "." + node.hostname  %>.system.cpu.user,<%= node["node"]["app"] + "." + node.hostname  %>.system.cpu.sys),60),60)' -s 900 -w 8 -c 10 -r -n 'CPU stdev change'",
+			"subscribers":["system"],
+			"notification":"CPU Stdev HIGH",
+	      	"interval": 600,
+	      	"refresh": 3600
+		}
+	}
+}

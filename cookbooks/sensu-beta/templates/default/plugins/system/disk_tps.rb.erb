@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+#
+# Disk tps Plugin
+# ===
+# code dn365
+# v 0.02
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require 'sigar'
+
+class DiskTps < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}.disk"
+
+  def default_tps(os,key)
+    arry = []
+    case os
+    when /hpux/
+      tps = %x[sar -d 1 2]
+      tps.each_line {|i| arry <<  i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" }
+      disk_count = arry.count
+      tps_sum = arry.map {|i| i.split(" ")[key].to_i }.inject(:+)
+    else
+      tps = %x[iostat 1 1]
+      tps.each_line {|i| arry << i.chomp unless i.chomp.empty? }
+      disk_count = arry[4..-1].count
+      tps_sum = arry[4..-1].map {|i| i.split(" ")[key].to_i}.inject(:+)  
+    end
+    return disk_count, tps_sum
+  end
+    
+  def run
+    dname = "system"
+    sigar = Sigar.new
+    uname = sigar.sys_info.name.downcase   
+    keys_hash = {"linux"=>1,"hpux"=>4,"aix"=>2} 
+    disk_count, tps_sum = default_tps(uname,keys_hash["#{uname}"])
+    
+    timestamp = Time.now.to_i  
+    metrics = {
+      "disk" => {
+        "disk_quantity" => disk_count,
+        "tps" => tps_sum
+      }
+    }
+    metrics.each do |parent, children|
+      children.each do |child, value|
+        output ["<%= node["node"]["app"] %>", config[:scheme], dname, parent, child].join("."), value, timestamp
+      end
+    end
+    ok
+  end
+end
+

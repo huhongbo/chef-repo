@@ -1,0 +1,1 @@
+{"name":"ohai-plugins","description":"ohai  plugins","json_class":"Chef::Role","default_attributes":{},"override_attributes":{},"chef_type":"role","run_list":["recipe[ohai-plugins]"],"env_run_lists":{}}

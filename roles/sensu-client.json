@@ -1,0 +1,1 @@
+{"name":"sensu-client","description":"sensu client config linux hpux aix","json_class":"Chef::Role","default_attributes":{},"override_attributes":{},"chef_type":"role","run_list":["recipe[sensu-config]","recipe[sensu-config::client]"],"env_run_lists":{}}
