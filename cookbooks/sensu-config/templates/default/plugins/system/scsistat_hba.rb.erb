@@ -43,7 +43,7 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
   def hpux_hba
     hba_cmd = %x[sar -H 1 2]
     arry,metrics_arry = [],[]
-    hba_cmd.each_line {|i| arry << i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" }
+    hba_cmd.each_line {|i| arry << i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" or !i.chomp.split(" ")[1].include?("fcd") }
     unless arry.empty?
       arry.map do |i|  
        fcs_name = "fcs" + i.split(" ")[1].scan(/\d+/).join("").to_s
