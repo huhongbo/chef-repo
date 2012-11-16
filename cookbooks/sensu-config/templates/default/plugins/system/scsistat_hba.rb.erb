@@ -11,7 +11,7 @@ require 'sensu-plugin/metric/cli'
 require 'socket'
 require 'rbconfig'
 
-
+$VERBOSE = nil
 class Hba < Sensu::Plugin::Metric::CLI::Graphite
 
   option :scheme,

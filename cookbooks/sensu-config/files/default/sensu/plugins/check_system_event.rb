@@ -8,6 +8,7 @@ require 'rubygems' if RUBY_VERSION < '1.9.0'
 require 'sensu-plugin/check/cli'
 require 'sigar'
 
+$VERBOSE = nil
 class CheckSystem < Sensu::Plugin::Check::CLI
   option :filesystem,
     :short => '-f',
