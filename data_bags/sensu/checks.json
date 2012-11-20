@@ -1,1 +1,16 @@
-{"id":"checks","default":{"system":{"load":"test load","cpu":"test cpu"},"check_warn":{"cpu_avg":"1122"}},"nodeconfig":{"pc-mon02":{"cpu":"ttt"}}}
+{	"id":"checks",
+	"default": {
+		"system": {
+			"load":"test load",
+			"cpu":"test cpu"
+		},
+		"check_warn": {
+			"cpu_avg":"1122"
+		}
+	},
+	"nodeconfig": {
+		"pc-mon02": {
+			"cpu":"ttt"
+		}
+	}
+}

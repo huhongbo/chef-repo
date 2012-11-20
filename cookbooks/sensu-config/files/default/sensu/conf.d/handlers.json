@@ -2,7 +2,7 @@
 	"handlers":{
 		"default":{
 			"type":"set",
-			"handlers":["gelf","keepalive"]
+			"handlers":["gelf","keepalive","event_file"]
 		},
 		"event":{
 			"type": "pipe",
@@ -15,6 +15,10 @@
 		"keepalive": {
 		     "type": "pipe",
              "command": "/etc/sensu/handlers/handler_keepalive.rb"
+		},
+		"event_file": {
+			"type": "pipe",
+			"command": "/etc/sensu/handlers/event_files.rb"
 		},
 		"graphite":{
 			"type":"amqp",
