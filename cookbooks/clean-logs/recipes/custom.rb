@@ -66,9 +66,9 @@ end
 end
 
 files_hash = {
-  "rm" => rm_arry.flatten,
-  "archive" => archive_arry.flatten,
-  "cat" => cat_arry.flatten
+  "rm" => rm_arry.flatten.compact,
+  "archive" => archive_arry.flatten.compact,
+  "cat" => cat_arry.flatten.compact
 }
 
 directory "/var/chef/exec" do

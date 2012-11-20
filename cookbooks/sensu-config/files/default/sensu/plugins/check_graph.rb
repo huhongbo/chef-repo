@@ -8,6 +8,7 @@ require 'sensu-plugin/check/cli'
 require "open-uri"
 require "yajl"
 
+$VERBOSE = nil
 class CheckGraph < Sensu::Plugin::Check::CLI
 
   option :base_url,

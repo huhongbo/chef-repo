@@ -8,6 +8,7 @@ require 'rubygems' if RUBY_VERSION < '1.9.0'
 require 'sensu-plugin/check/cli'
 require 'sigar'
 
+$VERBOSE = nil
 class CheckSystem < Sensu::Plugin::Check::CLI
   option :filesystem,
     :short => '-f',
@@ -79,7 +80,7 @@ class CheckSystem < Sensu::Plugin::Check::CLI
                   message << "critical:#{mount_name} used:#{disk_used}% free:#{disk_free}MB"
                 end
               else
-                if disk_used > warn_value
+                if disk_used > warn_value && disk_used < crit_value
                   message << "warning:#{mount_name} used:#{disk_used}%"
                 elsif disk_used > crit_value
                   message << "critical:#{mount_name} used:#{disk_used}%"
@@ -93,8 +94,8 @@ class CheckSystem < Sensu::Plugin::Check::CLI
                   message << "critical:#{mount_name} used:#{disk_used}% free:#{disk_free}MB"
                 end
               else
-                if disk_used > (warn_value - micro_par)
-                  message << "warning:#{mount_name} used:#{disk_used}%"
+                if disk_used > (warn_value - micro_par) && disk_used < (crit_value - micro_par)
+                  message << "warning:#{mount_name}  used:#{disk_used}%"
                 elsif disk_used > (crit_value - micro_par)
                   message << "critical:#{mount_name} used:#{disk_used}%"
                 end

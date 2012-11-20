@@ -24,9 +24,11 @@ pidfile="/var/run/mcollectived.pid"
 mcollectived="/usr/local/ruby1.9/bin/mcollectived"
 pidfile="/var/run/mcollectived.pid"
 psfile=`ps -ef|grep mcollective|grep ruby|grep -v grep|awk '{print $2}'`
+export PATH=$PATH:/usr/local/ruby1.9/bin
 <% elsif node.os == "aix" %>
 mcollectived="/opt/freeware/ruby1.9/bin/mcollectived"
 pidfile="/var/chef/run/mcollectived.pid"
+export PATH=$PATH:/opt/freeware/ruby1.9/bin
 <% end %>
 
 # Lockfile
@@ -87,22 +89,22 @@ status()
 {
 	<% unless node.os == "hpux" %>
         if [ -f ${lock} ]; then
-           if [ -s ${pidfile} ]; then
-             if [ -e /proc/`cat ${pidfile}` ]; then
+            if [ -e /proc/`cat ${pidfile}` ]; then
                 echo "mcollectived (`cat ${pidfile}`) is running"                   
               else
-                echo "mcollectived (`cat ${pidfile}`) is NOT running"                   
-              fi
+                echo "mcollectived (`cat ${pidfile}`) is NOT running"
+                return 1         
             fi
         else
             echo "mcollectived: service not started"
-            
+            return 1 
         fi
 	<% else %>
 		if [ `ps -ef|grep mcollective|grep -v grep|awk '{print $2}'|wc -l` -ne 0 ]; then
 	    echo "mcollectived (${psfile}) is running"	            
 		else
 		echo "mcollectived: service not started error"
+        return 1
 		fi
 	<% end %>
 }

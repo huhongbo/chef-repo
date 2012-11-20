@@ -31,8 +31,10 @@ elif [ -f /etc/lfs-release ]; then
     system=lfs
 elif [ `echo | uname` = "HP-UX" ]; then
 	system=hpux
+    export PATH=$PATH:/usr/local/ruby1.9/bin
 elif [ `echo | uname` = "AIX" ]; then
-	system=aix
+    system=aix
+    export PATH=$PATH:/opt/freeware/ruby1.9/bin
 fi
 
 prog="sensu-client"

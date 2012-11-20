@@ -9,6 +9,7 @@ require 'sensu-plugin/metric/cli'
 require 'socket'
 require 'sigar'
 
+$VERBOSE = nil
 class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
 
   option :scheme,

@@ -142,7 +142,7 @@ service "sensu-client" do
   elsif (platform?("aix"))
     provider Chef::Provider::Service::Init
   end
-  supports :restart => true
+  supports :restart => true, :status => true
   action :start
 end
 
