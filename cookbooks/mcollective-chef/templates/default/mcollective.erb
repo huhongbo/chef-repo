@@ -89,13 +89,11 @@ status()
 {
 	<% unless node.os == "hpux" %>
         if [ -f ${lock} ]; then
-           if [ -s ${pidfile} ]; then
-             if [ -e /proc/`cat ${pidfile}` ]; then
+            if [ -e /proc/`cat ${pidfile}` ]; then
                 echo "mcollectived (`cat ${pidfile}`) is running"                   
               else
                 echo "mcollectived (`cat ${pidfile}`) is NOT running"
                 return 1         
-              fi
             fi
         else
             echo "mcollectived: service not started"
