@@ -32,7 +32,7 @@ class EventCreate < Sensu::Handler
      #@event['occurrences']
     @event['check']['status']
     output = @event['check']['output']
-    content = opuput.split(":")[-1].strip.split(" ")[0]
+    
     content_array = []
     level = if @event['check']['status'].eql?(2); "CRITICAL"; elsif @event['check']['status'].eql?(1); "Warning" end
     if ["zjjzcj02","zjjzcj01"].include?(@event['client']['name']) and ["cpu","stdev_cpu","keepalive"].include?(@event['check']['name'])
@@ -40,11 +40,14 @@ class EventCreate < Sensu::Handler
       when "keepalive"
         content_array << "#{@event['client']['name']}  #{occurrence_time}  agent_unkeepalive"
       when "cpu"
+        content = output.split(":")[-1].strip.split(" ")[0]
         content_array << "#{@event['client']['name']} #{occurrence_time} #{level}-cpu_avg #{content}%"
       when "stdev_cpu"
+        content = output.split(":")[-1].strip.split(" ")[0]
         content_array << "#{@event['client']['name']} #{occurrence_time} #{level}-cpu_stdev #{content}%"
       end
     end
+    #content_array << "#{@event['client']['name']} #{occurrence_time}"
     create_file(content_array) unless content_array.empty?
   end
   
