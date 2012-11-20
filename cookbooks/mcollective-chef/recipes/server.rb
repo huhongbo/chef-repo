@@ -1,22 +1,9 @@
 # mcollective server config
 # code dn365
 
-remote_directory "/var/chef/gems" do
-  source "gems"
-  recursive true
-end
-
-gem_package "stomp" do
-  source "/var/chef/gems/stomp-1.2.4.gem"
-  options "--no-ri --no-rdoc"
-  version "1.2.4"
-  action :install
-end
-
 gem_package "mcollective" do
-  source "/var/chef/gems/mcollective-2.1.0.gem"
   options "--no-ri --no-rdoc"
-  version "2.1.0"
+  version "#{node["mcollective"]["version"]}"
   action :install
 end
 
