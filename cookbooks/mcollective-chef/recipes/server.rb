@@ -42,33 +42,33 @@ end
 service "mcollective" do
   case node[:platform]
   when "hpux"
-     provider Chef::Provider::Service::Hpux
+    provider Chef::Provider::Service::Hpux
   when "aix"
-     provider Chef::Provider::Service::Init
+    provider Chef::Provider::Service::Init
   end
-    supports :restart => true, :status => true
-    action :start
+  supports :restart => true, :status => true
+  action :start
 end
 
 
-  ruby_block "store node data locally" do
-    block do
-    
-      state = ::File.open("/etc/mcollective/chefnode.txt", "w")
-      node.run_state[:seen_recipes].keys.each do |recipe|
-        state.puts("recipe.#{recipe}")
-      end
-      node.run_list.roles.each do |role|
-        state.puts("role.#{role}")
-      end
-      node[:tags].each do |tag|
-        state.puts("tag.#{tag}")
-      end    
-    
-      state.close  
+ruby_block "store node data locally" do
+  block do
+
+    state = ::File.open("/etc/mcollective/chefnode.txt", "w")
+    node.run_state[:seen_recipes].keys.each do |recipe|
+      state.puts("recipe.#{recipe}")
     end
+    node.run_list.roles.each do |role|
+      state.puts("role.#{role}")
+    end
+    node[:tags].each do |tag|
+      state.puts("tag.#{tag}")
+    end
+
+    state.close
   end
-  
+end
+
 ruby_block "create facts file" do
   block do
     state = ::File.open("/etc/mcollective/facts.yaml", "w")
@@ -77,28 +77,41 @@ ruby_block "create facts file" do
       keys = node["#{facts}"]
       state.puts("#{facts}: #{keys}")
     end
-    
+
     state.close
   end
 end
 
 if File.exist?("/var/log/mcollective.log")
   file_time = File.mtime("/var/log/mcollective.log").to_i
-  time_now = Time.now.to_i 
+  time_now = Time.now.to_i
   time_value = (time_now - file_time) / 60
   unless time_value < 10
     service "mcollective" do
       case node[:platform]
       when "hpux"
-         provider Chef::Provider::Service::Hpux
+        provider Chef::Provider::Service::Hpux
       when "aix"
-         provider Chef::Provider::Service::Init
+        provider Chef::Provider::Service::Init
       end
-        supports :restart => true, :status => true
-        action :restart
+      supports :restart => true, :status => true
+      action :restart
     end
   end
 end
-  
 
-
+service "mcollective" do
+  case node[:platform]
+  when "hpux"
+    provider Chef::Provider::Service::Hpux
+  when "aix"
+    provider Chef::Provider::Service::Init
+  end
+  supports :restart => true, :status => true
+  action :restart
+  ignore_failure true
+  only_if do
+    File.exists?('/var/chef/restart-success-stamp') &&
+    File.mtime('/var/chef/restart-success-stamp') < Time.now - 86400
+  end
+end

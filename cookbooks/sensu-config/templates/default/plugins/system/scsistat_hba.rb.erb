@@ -18,12 +18,12 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
     :description => "Metric naming scheme, text to prepend to .$parent.$child",
     :long => "--scheme SCHEME",
     :default => "#{Socket.gethostname}.hba"
-    
+
   def sprintf_int(num)
     num = 0 unless num
     sprintf("%.01f", num)
   end
-  
+
   def aix_hba
     hba_cmd = %x[/etc/sensu/plugins/scsistat]
     arry,metrics_arry = [],[]
@@ -39,13 +39,13 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
     end
     return Hash[metrics_arry]
   end
-  
+
   def hpux_hba
     hba_cmd = %x[sar -H 1 2]
     arry,metrics_arry = [],[]
     hba_cmd.each_line {|i| arry << i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" or !i.chomp.split(" ")[1].include?("fcd") }
     unless arry.empty?
-      arry.map do |i|  
+      arry.map do |i|
        fcs_name = "fcs" + i.split(" ")[1].scan(/\d+/).join("").to_s
        metrics_arry << [fcs_name,{:iops => i.split(" ")[4],:rmbs => i.split(" ")[7],:wmbs => i.split(" ")[8]}]
       end
