@@ -111,7 +111,7 @@ service "mcollective" do
   action :restart
   ignore_failure true
   only_if do
-    ::File.exists?('/var/chef/restart-success-stamp') &&
-    ::File.mtime('/var/chef/restart-success-stamp') < Time.now - 86400
+    ::File.exists?('/var/chef/lock/mcollective') &&
+    ::File.mtime('/var/chef/lock/mcollective') < Time.now - 86400
   end
 end
