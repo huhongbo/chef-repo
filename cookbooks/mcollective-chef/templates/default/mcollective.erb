@@ -44,7 +44,7 @@ start()
             # we were not shut down correctly
             if [ -s ${pidfile} ]; then
                 kill `cat ${pidfile}` >/dev/null 2>&1
-            fi		
+            fi
             rm -f ${pidfile}
             rm -f ${lock}
             sleep 2
@@ -59,7 +59,7 @@ start()
 stop_mc()
 {
         echo -n "Shutting down mcollective: "
-		
+
 		<% unless node.os == "hpux" %>
         if [ -s ${pidfile} ]; then
             kill `cat ${pidfile}` >/dev/null 2>&1
@@ -70,7 +70,7 @@ stop_mc()
         rm -f $lock
 		<% else %>
 		kill $psfile >/dev/null 2>&1
-		
+
 		rm -f ${pidfile}
 
         log_success_msg
@@ -88,20 +88,20 @@ restart()
 status()
 {
 	<% unless node.os == "hpux" %>
-        if [ -f ${lock} ]; then
+        if [[ -f ${lock} && -f ${pidfile} ]]; then
             if [ -e /proc/`cat ${pidfile}` ]; then
-                echo "mcollectived (`cat ${pidfile}`) is running"                   
+                echo "mcollectived (`cat ${pidfile}`) is running"
               else
                 echo "mcollectived (`cat ${pidfile}`) is NOT running"
-                return 1         
+                return 1
             fi
         else
             echo "mcollectived: service not started"
-            return 1 
+            return 1
         fi
 	<% else %>
 		if [ `ps -ef|grep mcollective|grep -v grep|awk '{print $2}'|wc -l` -ne 0 ]; then
-	    echo "mcollectived (${psfile}) is running"	            
+	    echo "mcollectived (${psfile}) is running"
 		else
 		echo "mcollectived: service not started error"
         return 1
