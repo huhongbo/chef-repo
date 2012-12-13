@@ -95,6 +95,7 @@ service "mcollective" do
   only_if do
     lock = ::File.exists?('/var/chef/lock/mcollective') && ::File.mtime('/var/chef/lock/mcollective') < Time.now - 86400
     log = ::File.exists?('/var/log/mcollective.log') && ::File.mtime('/var/log/mcollective.log') < Time.now - 600
-    lock || log
+    first = !::File.exists?('/var/log/mcollective.log')
+    lock || log || first
   end
 end
