@@ -11,6 +11,15 @@ dmi[:system][:product_name] = from("uname -M").split(",")[1]
 dmi[:system][:manufacturer] = "IBM"
 dmi[:system][:serial_number] = from("uname -u")[6..12]
 
+Mash[network['interfaces']].each do |iface, iface_v|
+  iface_v['addresses'].each do |addr, addr_v|
+    next if addr_v.nil?
+    if addr =~ /(\w{2}):(\w{2}):(\w{2}):(\w{2}):(\w{2}):(\w{2})/ then
+      iface_v['addresses'].delete(addr)
+    end
+  end
+end
+
 popen4("lscfg -v -l ent*") do |pid, stdin, stdout, stderr|
   stdin.close
   stdout.each do |line|
@@ -30,8 +39,6 @@ popen4("lscfg -v -l ent*") do |pid, stdin, stdout, stderr|
       end
     when /Network\sAddress\.+(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})/
       macaddr = $1 + ":" + $2 + ":" + $3 + ":" + $4 + ":" + $5 + ":" + $6
-      f_macaddr = $1 + ":" + $2 + ":" + $3 + ":" + $4 + ":" + $5 + ":65"
-      network['interfaces'][$ifName]['addresses'].delete(f_macaddr) unless !network['interfaces'][$ifName]['addresses'].key?(f_macaddr)
       network['interfaces'][$ifName]['addresses'] = Mash.new unless network['interfaces'][$ifName]['addresses']
       network['interfaces'][$ifName]['addresses'][macaddr] = { "family" => "lladdr" }
     end
