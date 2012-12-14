@@ -11,13 +11,13 @@ require 'sensu-handler'
 require "/etc/sensu/redis-event"
 
 class ClientKeepalive < Sensu::Handler
-  
+
   def handle
     client_name = @event['client']['name']
     check_name = @event['check']['name']
-    check_output = @event['check']['output']
+#    check_output = @event['check']['output']
     status = @event['check']['status']
-        
+
     if @event['action'].eql?("resolve")
       return
     else
@@ -25,10 +25,10 @@ class ClientKeepalive < Sensu::Handler
         case status
         when 1
           puts "#{client_name} keepalive 120, run chef client"
-          `mco rpc runchef run -F hostname=#{client_name}`
+          `mco rpc sensu restart -F hostname=#{client_name}`
         when 2
-               
-        end       
+
+        end
       end
     end
   end
