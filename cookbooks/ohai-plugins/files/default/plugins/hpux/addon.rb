@@ -9,6 +9,16 @@ virtualization Mash.new
 dmi[:system]  = Mash.new unless dmi[:system]
 dmi[:system][:product_name] = from("model")
 dmi[:system][:manufacturer] = "HP"
+
+Mash[network['interfaces']].each do |iface, iface_v|
+  iface_v['addresses'].each do |addr, addr_v|
+    next if addr_v.nil?
+    if addr =~ /(\w{2}):(\w{2}):(\w{2}):(\w{2}):(\w{2}):(\w{2})/ then
+      iface_v['addresses'].delete(addr)
+    end
+  end
+end
+
 if File.executable?( "/usr/contrib/bin/machinfo" ) then
   popen4("/usr/contrib/bin/machinfo") do |pid, stdin, stdout, stderr|
     stdin.close
@@ -41,6 +51,10 @@ network['interfaces'].keys.each do |ifName|
       case line
       when /Description\s+=\s(lan\d+)\s(\S+\s\S+\s\S+)\s/
         network['interfaces'][ifName]['name'] = $2
+      when /Station Address\s+=\s0x(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})/
+        macaddr = "00:" + $1.upcase + ":" + $2.upcase + ":" + $3.upcase + ":" + $4.upcase + ":" + $5.upcase
+        network['interfaces'][ifName]['addresses'] = Mash.new unless network['interfaces'][ifName]['addresses']
+        network['interfaces'][ifName]['addresses'][macaddr] = { "family" => "lladdr" }
       when /Operation Status.+=\s(\w+)\W/i
         network['interfaces'][ifName]['status'] = $1
       end
@@ -48,7 +62,7 @@ network['interfaces'].keys.each do |ifName|
         popen4("lanadmin -x -i #{ppa}") do |pid, stdin, stdout, stderr|
           stdin.close
           stdout.each do |line|
-            case line 
+            case line
             when /Aggregation\sMode\s+:\s(.+)/
               network['interfaces'][ifName]['aggregation'] = $1
             when /Balance\sMode\s+:\s(.+)/
@@ -83,11 +97,7 @@ popen4("lanscan -q") do |pid, stdin, stdout, stderr|
             break if $2 =~ /LinkAggregate/
             network['interfaces'][ifName]['name'] = des
           when /Station\sAddress\s+=\s0x(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})/
-            macaddr = "00:" + $1 + ":" + $2 + ":" + $3 + ":" + $4 + ":" + $5 
-            network['interfaces'][ifName]['addresses'] = Mash.new
-            network['interfaces'][ifName]['addresses'][macaddr] = { "family" => "lladdr" }
-          when /Station\sAddress\s+=\s0x(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})/
-            macaddr = $1 + ":" + $2 + ":" + $3 + ":" + $4 + ":" + $5 + ":" + $6
+            macaddr = "00:" + $1.upcase + ":" + $2.upcase + ":" + $3.upcase + ":" + $4.upcase + ":" + $5.upcase
             network['interfaces'][ifName]['addresses'] = Mash.new
             network['interfaces'][ifName]['addresses'][macaddr] = { "family" => "lladdr" }
           when /Operation Status.+=\s(\w+)\W/i
@@ -125,7 +135,7 @@ if File.executable?("/opt/fcms/bin/fcmsutil") then
 				when /Driver\sstate\s+=\s(.+)/
 					storage['interfaces'][fcName]['status'] = $1
 				when /N_Port\sPort.+=\s0x(..)(..)(..)(..)(..)(..)(..)(..)$/
-					storage['interfaces'][fcName]['wwn'] = $1+":"+$2+":"+$3+":"+$4+":"+$5+":"+$6+":"+$7+":"+$8
+					storage['interfaces'][fcName]['wwn'] = $1.upcase+":"+$2.upcase+":"+$3.upcase+":"+$4.upcase+":"+$5.upcase+":"+$6.upcase+":"+$7.upcase+":"+$8.upcase
 				end
 			end
 		end
