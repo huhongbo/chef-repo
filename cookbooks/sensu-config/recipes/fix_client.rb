@@ -66,7 +66,7 @@ end
 
 #create conf.d checks files
 ## graphite checks file
-cookbook_file "#{["sensu"]["path"]}/conf.d/graphite.json" do
+cookbook_file "#{node["sensu"]["path"]}/conf.d/graphite.json" do
   source "sensu/conf.d/graphite.json"
   notifies :restart, "service[sensu-client]", :delayed
 end
@@ -81,7 +81,7 @@ check_source.each do |source|
   check_array << [source,value]
 end
 ##create file check_event.json
-template "#{["sensu"]["path"]}/conf.d/check_event.json" do
+template "#{node["sensu"]["path"]}/conf.d/check_event.json" do
   source "conf.d/check_event.json.erb"
   variables(check_hash: Hash[check_array])
   notifies :restart, "service[sensu-client]", :delayed
