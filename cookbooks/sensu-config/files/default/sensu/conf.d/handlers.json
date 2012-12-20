@@ -2,7 +2,7 @@
 	"handlers":{
 		"default":{
 			"type":"set",
-			"handlers":["gelf","keepalive","event_file"]
+			"handlers":["gelf","keepalive","alarm"]
 		},
 		"event":{
 			"type": "pipe",
@@ -16,9 +16,9 @@
 		     "type": "pipe",
              "command": "/etc/sensu/handlers/handler_keepalive.rb"
 		},
-		"event_file": {
+		"alarm": {
 			"type": "pipe",
-			"command": "/etc/sensu/handlers/event_files.rb"
+			"command": "/etc/sensu/handlers/alarm_sms.rb"
 		},
 		"graphite":{
 			"type":"amqp",

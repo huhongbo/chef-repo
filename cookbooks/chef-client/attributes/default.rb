@@ -25,9 +25,10 @@ else
   default["chef"]["gem"]["platform"] = nil
 end
 
-default["gem"]["local"]["sources"] = "http://pc-mon02:9292"
+#default["gem"]["local"]["sources"] = "http://chefserver-ubuntu:9292"
 default["chef_client"]["conf_dir"]    = "/etc/chef"
 default["chef_client"]["bin"]         = "/usr/bin/chef-client"
+#default["chef_client"]["server_url"]  = "http://chefserver-ubuntu:4000"
 default["chef_client"]["server_url"]  = "http://pc-mon02:4000"
 default["chef_client"]["validation_client_name"] = "chef-validator"
 default["chef_client"]["cron"] = { "minute" => "0,15,30,45", "hour" => "*", "path" => nil}

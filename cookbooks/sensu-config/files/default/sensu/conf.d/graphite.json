@@ -35,11 +35,6 @@
 			"subscribers":["system"],
 			"interval":60
 		},
-		"del_log": {
-			"command": "/etc/sensu/plugins/client-log_del.rb",
-			"standalone": true,
-	      	"interval": 600
-		},
 		"user_cpu": {
 			"type": "metric",
 			"handlers": ["graphite"],
