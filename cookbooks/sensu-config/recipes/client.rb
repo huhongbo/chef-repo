@@ -83,7 +83,7 @@ end
 ##create file check_event.json
 template "#{node["sensu"]["path"]}/conf.d/check_event.json" do
   source "conf.d/check_event.json.erb"
-  variables(check_hash: Hash[check_array])
+  variables(:check_hash => Hash[check_array])
   notifies :restart, "service[sensu-client]", :delayed
 end
 ## template client.json erb
