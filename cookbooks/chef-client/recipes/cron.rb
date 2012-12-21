@@ -1,6 +1,5 @@
 # code dn365
 
-
 # COOK-635 account for alternate gem paths
 # try to use the bin provided by the node attribute
 if ::File.executable?(node["chef_client"]["bin"])

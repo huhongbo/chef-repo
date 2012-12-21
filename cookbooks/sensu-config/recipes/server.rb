@@ -9,16 +9,21 @@
 # All rights reserved - Do Not Redistribute
 #
 
-#copy sensu files to sensu path
+#add graphite web url to hosts
+hosts_file = File.open("/etc/hosts").read
+unless hosts_file.include?("#{node["graphite"]["url"]}")
+  hosts_stat = File.open("/etc/hosts","w")
+  hosts_stat.puts(hosts_file)
+  hosts_stat.puts("#{node["graphite"]["ser_ip"]} #{node["graphite"]["url"]}")
+  hosts_stat.close
+end
 
+#copy sensu files to sensu path
 remote_directory "#{node["sensu"]["path"]}" do
   source "sensu"
   recursive true
 end
-## create sensu plugins system srcript dir
-directory "#{node["sensu"]["path"]}/plugins/system" do
-  action :create
-end
+
 # create sensu config.json
 config = data_bag_item('sensu','config').reject{|k,v| ["id"].include?(k) }
 file "#{node["sensu"]["path"]}/config.json" do
@@ -50,7 +55,10 @@ template "#{node["sensu"]["path"]}/conf.d/client.json" do
   notifies :restart, "service[sensu-client]", :delayed
 end
 
-
+## create sensu plugins system srcript dir
+directory "#{node["sensu"]["path"]}/plugins/system" do
+  action :create
+end
 ## template load plugin systems script
 node["plugin_files"].each do |pluginfile|
   template "#{node["sensu"]["path"]}/plugins/system/#{pluginfile}" do
