@@ -57,7 +57,7 @@ end
 
 #create sensu config.json file
 config = data_bag_item('sensu','config')
-conf_json = {rabbitmq: config['rabbitmq']}
+conf_json = {:rabbitmq => config['rabbitmq']}
 file "#{node["sensu"]["path"]}/config.json" do
   content conf_json.to_json
   action :create
