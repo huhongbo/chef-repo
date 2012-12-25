@@ -1,1 +1,0 @@
-{"id":"handlers","handlers":{"default":{"type":"set","handlers":["stdout"]},"graphite":{"type":"amqp","send_only_check_output":true,"exchange":{"passive":"true","type":"topic","name":"graphite"}},"stdout":{"type":"pipe","command":"echo hello"}}}

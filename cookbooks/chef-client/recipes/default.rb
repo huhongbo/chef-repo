@@ -7,6 +7,16 @@
 # All rights reserved - Do Not Redistribute
 #
 
+#add chef server ip to hosts
+hosts_file = File.open("/etc/hosts").read
+unless hosts_file.include?("#{node["chef"]["hosts"]["name"]}")
+  hosts_stat = File.open("/etc/hosts","w")
+  hosts_stat.puts(hosts_file)
+  hosts_stat.puts("#{node["chef"]["hosts"]["ip"]} #{node["chef"]["hosts"]["name"]}")
+  hosts_stat.close
+end
+
+
 # change gem sources url
 if (gem_in_path=%x{which gem}.chomp) && ::File.executable?(gem_in_path)
   gem_path = gem_in_path
@@ -32,6 +42,8 @@ directory "#{node["chef_client"]["conf_dir"]}/plugins" do
   action :create
 end
 
+
+#remote chef client.rb in chef conf path
 template "#{node["chef_client"]["conf_dir"]}/client.rb" do
   source "client.rb.erb"
   variables(
@@ -42,6 +54,13 @@ template "#{node["chef_client"]["conf_dir"]}/client.rb" do
     :chef_ohai_pulgins => node["chef_client"]["conf_dir"]
   )
 end
+#remote knife.rb in knife path
+knife_path = node.os.eql?("linux") ? "/root/.chef" : "/.chef"
+template "#{knife_path}/knife.rb" do
+  source "knife.rb.erb"
+  variables(:path => knife_path)
+end
+
 
 
 gem_package "chef" do

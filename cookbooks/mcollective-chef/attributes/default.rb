@@ -1,7 +1,8 @@
 # mcollective config
 
 # stomp config
-default["mcollective"]["stomp"]["host"] = "pc-mon02"
+#default["mcollective"]["stomp"]["host"] = "chefserver-ubuntu"
+default["mcollective"]["stomp"]["host"] = "pc-monsvc"
 default["mcollective"]["stomp"]["port"] = "61613"
 default["mcollective"]["stomp"]["user"] = "mcollective"
 default["mcollective"]["stomp"]["password"] = "admin"

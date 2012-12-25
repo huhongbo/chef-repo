@@ -15,7 +15,7 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     :short => '-u',
     :long => '--url=VALUE',
     :description => 'Graphite base url',
-    :default => 'http://graphite.zj.chinamobile.com:8080'
+    :default => 'http://graphite.zmcc.com:8080'
   option :time,
     :short => '-s=VALUE',
     :long => '--seconds',

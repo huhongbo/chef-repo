@@ -188,6 +188,5 @@ class CheckSystem < Sensu::Plugin::Check::CLI
       else
         unknown msg = "Not find -c crit or -w warn, please -h "
       end
-              
-    end 
+    end
 end
