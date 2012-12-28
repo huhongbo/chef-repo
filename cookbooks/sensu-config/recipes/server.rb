@@ -22,12 +22,19 @@ end
 remote_directory "#{node["sensu"]["path"]}" do
   source "sensu"
   recursive true
+  owner "sensu"
+  group "sensu"
+  files_owner "sensu"
+  files_group "sensu"
+  files_mode 0755
 end
 
 # create sensu config.json
 config = data_bag_item('sensu','config').reject{|k,v| ["id"].include?(k) }
 file "#{node["sensu"]["path"]}/config.json" do
   content config.to_json
+  owner "sensu"
+  group "sensu"
   action :create
   #notifies :restart, "service[sensu-client]", :delayed
 end
@@ -45,18 +52,24 @@ end
 ##create file check_event.json
 template "#{node["sensu"]["path"]}/conf.d/check_event.json" do
   source "conf.d/check_event.json.erb"
-  variables(check_hash: Hash[check_array])
+  owner "sensu"
+  group "sensu"
+  variables(:check_hash => Hash[check_array])
   notifies :restart, "service[sensu-client]", :delayed
 end
 ## template client.json erb
 template "#{node["sensu"]["path"]}/conf.d/client.json" do
   source "conf.d/client.json.erb"
   mode 0644
+  owner "sensu"
+  group "sensu"
   notifies :restart, "service[sensu-client]", :delayed
 end
 
 ## create sensu plugins system srcript dir
 directory "#{node["sensu"]["path"]}/plugins/system" do
+  owner "sensu"
+  group "sensu"
   action :create
 end
 ## template load plugin systems script
@@ -64,18 +77,24 @@ node["plugin_files"].each do |pluginfile|
   template "#{node["sensu"]["path"]}/plugins/system/#{pluginfile}" do
     source "plugins/system/#{pluginfile}.erb"
     mode 0755
+    owner "sensu"
+    group "sensu"
   end
 end
 
 template "#{node["sensu"]["path"]}/handlers/alarm_sms.rb" do
   source "handlers/alarm_sms.rb.erb"
   mode 0644
+  owner "sensu"
+  group "sensu"
 end
 
 # ruby script file chmod
 Dir.glob("#{node["sensu"]["path"]}/**/*.rb").map do |rb_file|
   file "#{rb_file}" do
     mode 0755
+    owner "sensu"
+    group "sensu"
   end
 end
 
@@ -85,11 +104,16 @@ conf_dir = value_for_platform(
   "default" => "/etc/init.d")
 
 directory "#{conf_dir}" do
+  owner "sensu"
+  group "sensu"
   action :create
 end
+
 cookbook_file "#{conf_dir}/sensu-client" do
   source "sensu-client"
   mode 0755
+  owner "sensu"
+  group "sensu"
 end
 
 # sensu client service start
