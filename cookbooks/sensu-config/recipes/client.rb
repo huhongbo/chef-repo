@@ -28,14 +28,10 @@ root_group = value_for_platform(
 
 #create sensu-client service srctip file dir
 directory "#{node["sensu"]["path"]}" do
-  owner "sensu"
-  group "sensu"
   action :create
 end
 
 directory "#{node["sensu"]["path"]}/conf.d" do
-  owner "sensu"
-  group "sensu"
   action :create
 end
 
@@ -65,8 +61,6 @@ config = data_bag_item('sensu','config')
 conf_json = {:rabbitmq => config['rabbitmq']}
 file "#{node["sensu"]["path"]}/config.json" do
   content conf_json.to_json
-  owner "sensu"
-  group "sensu"
   action :create
   notifies :restart, "service[sensu-client]", :delayed
 end
@@ -75,8 +69,6 @@ end
 ## graphite checks file
 cookbook_file "#{node["sensu"]["path"]}/conf.d/graphite.json" do
   source "sensu/conf.d/graphite.json"
-  owner "sensu"
-  group "sensu"
   notifies :restart, "service[sensu-client]", :delayed
 end
 
@@ -92,8 +84,6 @@ end
 ##create file check_event.json
 template "#{node["sensu"]["path"]}/conf.d/check_event.json" do
   source "conf.d/check_event.json.erb"
-  owner "sensu"
-  group "sensu"
   variables(:check_hash => Hash[check_array])
   notifies :restart, "service[sensu-client]", :delayed
 end
@@ -101,8 +91,6 @@ end
 template "#{node["sensu"]["path"]}/conf.d/client.json" do
   source "conf.d/client.json.erb"
   mode 0644
-  owner "sensu"
-  group "sensu"
   notifies :restart, "service[sensu-client]", :delayed
 end
 ##copy sensu plugin files
@@ -110,23 +98,15 @@ remote_directory "#{node["sensu"]["path"]}/plugins" do
   source "sensu/plugins"
   files_mode 0755
   recursive true
-  owner "sensu"
-  group "sensu"
-  files_owner "sensu"
-  files_group "sensu"
 end
 ## create sensu plugins system srcript dir
 directory "#{node["sensu"]["path"]}/plugins/system" do
-  owner "sensu"
-  group "sensu"
   action :create
 end
 ## template load plugin systems script
 node["plugin_files"].each do |pluginfile|
   template "#{node["sensu"]["path"]}/plugins/system/#{pluginfile}" do
     source "plugins/system/#{pluginfile}.erb"
-    owner "sensu"
-    group "sensu"
     mode 0755
   end
 end
@@ -141,8 +121,6 @@ directory "#{conf_dir}" do
 end
 cookbook_file "#{conf_dir}/sensu-client" do
   source "sensu-client"
-  owner "sensu"
-  group "sensu"
   mode 0755
 end
 
