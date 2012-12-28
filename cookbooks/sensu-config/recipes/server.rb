@@ -1,4 +1,4 @@
-# sensu version 0.9.7 client 
+# sensu version 0.9.7 client
 
 #
 # Cookbook Name:: sensu-config
@@ -67,6 +67,11 @@ node["plugin_files"].each do |pluginfile|
   end
 end
 
+template "#{node["sensu"]["path"]}/handlers/alarm_sms.rb" do
+  source "handlers/alarm_sms.rb.erb"
+  mode 0644
+end
+
 # ruby script file chmod
 Dir.glob("#{node["sensu"]["path"]}/**/*.rb").map do |rb_file|
   file "#{rb_file}" do
@@ -78,7 +83,7 @@ end
 conf_dir = value_for_platform(
   ["hpux"] => { "default" => "/sbin/init.d" },
   "default" => "/etc/init.d")
-  
+
 directory "#{conf_dir}" do
   action :create
 end
