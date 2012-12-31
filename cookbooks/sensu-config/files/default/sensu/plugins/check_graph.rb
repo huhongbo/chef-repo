@@ -15,7 +15,7 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     :short => '-u',
     :long => '--url=VALUE',
     :description => 'Graphite base url',
-    :default => 'http://graphite.zmcc.com:8080'
+    :default => 'http://graphite.zj.chinamobile.com:8080'
   option :time,
     :short => '-s=VALUE',
     :long => '--seconds',
@@ -56,8 +56,8 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     :boolean => true,
     :show_options => true,
     :exit => 0
-    
-    
+
+
   def read_url(url)
     parser = Yajl::Parser.new
     begin
@@ -67,24 +67,24 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     end
       return file
   end
-  
-  def grap_data(file) 
-      data = file[0]["datapoints"].reject {|k,v| [nil].include?(k) } 
+
+  def grap_data(file)
+      data = file[0]["datapoints"].reject {|k,v| [nil].include?(k) }
       data_sum = data.map {|k,v| k.to_i}.inject(:+)
       data_count = data.count
       data_value = sprintf("%.0f", data_sum.to_f / data_count)
       return data_value
   end
-  
+
   def stdev_data(file)
-      data = file[0]["datapoints"].reject {|k,v| [nil].include?(k) }  
-      data_max_value = data.map {|k,v| k.to_i}.max    
+      data = file[0]["datapoints"].reject {|k,v| [nil].include?(k) }
+      data_max_value = data.map {|k,v| k.to_i}.max
       return data_max_value
   end
-  
+
   def last_data(file)
       data = file[0]["datapoints"].reject {|k,v| [nil].include?(k)}
-      data_last_value = data.map {|k,v| k }[-1]  
+      data_last_value = data.map {|k,v| k }[-1]
       return data_last_value
   end
 
@@ -114,20 +114,20 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     from_time = config[:time]
     target = config[:target]
     alias_name = config[:alias].nil? ? target : config[:alias]
-    
+
     unknown_msg = {
       :base_msg => "Not find url and time and target, please -h",
       :rev_msg => "Not find -r reverse, please -h",
       :url_error => "#{base_url} connect time out",
       :config_err => "Not find -c crit or -w warn, please -h "
-      
+
     }
-    
+
     if base_url.nil? or from_time.nil? or target.nil?
       unknown msg = unknown_msg[:base_msg]
       exit
     end
-    
+
     if config[:holt_winters]
       holt_url = "#{base_url}/render?from=-#{from_time}sen&until=now&target=#{target}&target=holtWintersConfidenceBands(#{alias_name})&format=json"
       holt_file = read_url(holt_url)
@@ -141,14 +141,14 @@ class CheckGraph < Sensu::Plugin::Check::CLI
       end
       exit
     end
-    
+
     if config[:diff]
       diff1_url = "#{base_url}/render?from=-#{from_time}sen&until=now&target=#{target}&format=json"
       diff2_url = "#{base_url}/render?from=-#{from_time}sen&until=now&target=#{config[:diff]}&format=json"
       if read_url(diff1_url) and read_url(diff2_url)
-        
+
         diff1_data = grap_data(read_url(diff1_url))
-        diff2_data = grap_data(read_url(diff2_url))  
+        diff2_data = grap_data(read_url(diff2_url))
         diff_data = (diff1_data.to_i - diff2_data.to_i).abs.to_i
         unless config[:reverse]
           unknown msg = unknown_msg[:rev_msg]
@@ -186,7 +186,7 @@ class CheckGraph < Sensu::Plugin::Check::CLI
         else
           ok msg = "#{alias_name}: #{data_value}"
         end
-      end  
+      end
     else
       unknown msg = unknown_msg[:url_error]
     end

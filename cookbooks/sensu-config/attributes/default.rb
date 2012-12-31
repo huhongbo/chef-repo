@@ -1,4 +1,4 @@
-default["graphite"]["url"] = "graphite.zmcc.com"
+default["graphite"]["url"] = "graphite.zj.chinamobile.com"
 default["graphite"]["ser_ip"] = "10.70.181.217"
 
 
