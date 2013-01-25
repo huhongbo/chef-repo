@@ -31,8 +31,8 @@ default["chef_client"]["conf_dir"]    = "/etc/chef"
 default["chef_client"]["bin"]         = "/usr/bin/chef-client"
 default["chef_client"]["server_url"]  = "http://pc-monsvc:4000"
 default["chef_client"]["validation_client_name"] = "chef-validator"
-default["chef_client"]["cron"] = { "minute" => "0,15,30,45", "hour" => "*", "path" => nil}
-default["chef_client"]["rand_time"] = "420"
+default["chef_client"]["cron"] = { "minute" => "15", "hour" => "*", "path" => nil}
+default["chef_client"]["rand_time"] = "900"
 
 
 case platform
