@@ -8,3 +8,4 @@ validation_client_name "<%= @validation_client_name %>"
 file_backup_path   "<%= @file_backup_path %>"
 file_cache_path    "<%= @file_cache_path %>"
 Ohai::Config[:plugin_path] << '<%= @chef_ohai_pulgins %>/plugins'
+Ohai::Config[:disabled_plugins] = ["network_listeners"]

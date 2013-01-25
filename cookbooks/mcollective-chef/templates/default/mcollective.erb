@@ -43,7 +43,7 @@ start()
         if [ -f ${lock} ]; then
             # we were not shut down correctly
             if [ -s ${pidfile} ]; then
-                kill `cat ${pidfile}` >/dev/null 2>&1
+                kill -9 `cat ${pidfile}` >/dev/null 2>&1
             fi
             rm -f ${pidfile}
             rm -f ${lock}
@@ -62,14 +62,14 @@ stop_mc()
 
 		<% unless node.os == "hpux" %>
         if [ -s ${pidfile} ]; then
-            kill `cat ${pidfile}` >/dev/null 2>&1
+            kill -9 `cat ${pidfile}` >/dev/null 2>&1
         fi
         rm -f ${pidfile}
 
         log_success_msg
         rm -f $lock
 		<% else %>
-		kill $psfile >/dev/null 2>&1
+		kill -9 $psfile >/dev/null 2>&1
 
 		rm -f ${pidfile}
 

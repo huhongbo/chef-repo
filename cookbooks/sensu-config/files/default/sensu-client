@@ -30,7 +30,7 @@ elif [ -f /etc/slackware-version ]; then
 elif [ -f /etc/lfs-release ]; then
     system=lfs
 elif [ `echo | uname` = "HP-UX" ]; then
-	system=hpux
+    system=hpux
     export PATH=$PATH:/usr/local/ruby1.9/bin
 elif [ `echo | uname` = "AIX" ]; then
     system=aix
@@ -40,36 +40,38 @@ fi
 prog="sensu-client"
 
 if [ "$system" = "aix" ]; then
-	sensu_exec=/opt/freeware/ruby1.9/bin/$prog
-	pidfile=/var/chef/run/$prog.pid
+    sensu_exec=/opt/freeware/ruby1.9/bin/$prog
+    pidfile=/var/chef/run/$prog.pid
 elif [ "$system" = "hpux" ]; then
-	sensu_exec=/usr/local/ruby1.9/bin/$prog
-	pidfile=/var/run/$prog.pid
+    sensu_exec=/usr/local/ruby1.9/bin/$prog
+    pidfile=/var/run/$prog.pid
 else
-	sensu_exec=`which $prog`
-	pidfile=/var/run/$prog.pid
+    sensu_exec=`which $prog`
+    pidfile=/var/run/$prog.pid
 fi
 logfile=/var/log/$prog.log
 lockfile=/var/chef/lock/$prog
 
 
-start() 
+start()
 {
     echo "Starting $prog"
 
 
-	if [ "$system" != "aix" ]; then
-		status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
-	else
-		status=$(ps exw | grep $sensu_exec | grep -v grep | awk '{ print $1 }') 
-	fi
+    if [ "$system" = "aix" ]; then
+        status=$(ps exw | grep $sensu_exec | grep -v grep | awk '{ print $1 }')
+    elif [ "$system" = "hpux" ];then
+        status=$(ps -ef | grep $sensu_exec | grep -v grep | awk '{ print $2 }')
+    else
+        status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
+    fi
 
     [ -x $sensu_exec ] || exit 5
-	
-	if [  "$status" != "" ]; then
-       		echo "$prog is already running."
-        	exit 0
-	fi
+
+    if [  "$status" != "" ]; then
+            echo "$prog is already running."
+            exit 0
+    fi
 
     #ensure_pid_dir
     $sensu_exec -b -p $pidfile -l $logfile
@@ -80,77 +82,81 @@ start()
     if [ $RETVAL -eq 0 ]; then
         touch $lockfile
     fi
-    
+
     echo "$prog startup success."
     return $RETVAL
 }
 
-stop_sensu() 
+stop_sensu()
 {
     echo "Stopping $prog"
 
-	if [ "$system" != "aix" ]; then
-		status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
-	else
-		status=$(ps exw | grep $sensu_exec | grep -v grep  | awk '{ print $1 }')
-	fi
+    if [ "$system" = "aix" ]; then
+        status=$(ps exw | grep $sensu_exec | grep -v grep | awk '{ print $1 }')
+    elif [ "$system" = "hpux" ];then
+        status=$(ps -ef | grep $sensu_exec | grep -v grep | awk '{ print $2 }')
+    else
+        status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
+    fi
 
     if [ -f $pidfile ]; then
         #killproc -p $pidfile $prog
-	kill -9 `cat $pidfile`
+    kill -9 `cat $pidfile`
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
             rm -f $pidfile
             rm -f $lockfile
             echo "$prog stop success."
         else
-	    kill -9 $status
-	    RETVAL=$?
-	    if [ $RETVAL -eq 0 ];then
+        kill -9 $status
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ];then
               rm -f $pidfile
               rm -f $lockfile
               echo "$prog stop success."
-	    else
+        else
               echo "$prog error."
-	    fi
+        fi
         fi
         return $RETVAL
     else
-	pid=$status
-	echo $pid
+    pid=$status
+    echo $pid
         if [  "$pid" != "" ]; then
-        	kill -9 $pid
-            	RETVAL=$?
-            	if [ $RETVAL -eq 0 ]; then
-                	rm -f $pidfile
-                	rm -f $lockfile
-                	echo "$prog stop success."
-		else
-			echo "$prog stop error."
-            	fi
-	elif [ -f $pidfile ]; then
-		rm -f $pidfile
-	elif [ -f $lockfile ]; then
-		rm -f $lockfile
-       	fi
+            kill -9 $pid
+                RETVAL=$?
+                if [ $RETVAL -eq 0 ]; then
+                    rm -f $pidfile
+                    rm -f $lockfile
+                    echo "$prog stop success."
+        else
+            echo "$prog stop error."
+                fi
+    elif [ -f $pidfile ]; then
+        rm -f $pidfile
+    elif [ -f $lockfile ]; then
+        rm -f $lockfile
+        fi
     fi
 }
 
-status() 
+status()
 {
     #local pid
 
     # First try "ps"
-	if [ "$system" = "aix" ]; then
-		status=$(ps exw | grep $sensu_exec | grep -v grep  | awk '{ print $1 }')
-	else
-		status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
-	fi
+    if [ "$system" = "aix" ]; then
+        status=$(ps exw | grep $sensu_exec | grep -v grep | awk '{ print $1 }')
+    elif [ "$system" = "hpux" ];then
+        status=$(ps -ef | grep $sensu_exec | grep -v grep | awk '{ print $2 }')
+    else
+        status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
+    fi
 
     pid=$status
     if [ -n "$pid" ]; then
-	echo $"${prog} (pid $pid) is running..."
-    	return 0
+    echo $"${prog} (pid $pid) is running..."
+        return 0
     fi
 
     # See if $lockfile
@@ -165,37 +171,39 @@ status()
 
 # sometimes sensu components need a moment to shutdown, so
 # let's implement a waiting approach to restarts with a timeout
-restart_sensu() 
+restart_sensu()
 {
     max_wait=10
     count=0; success=0
 
     stop_sensu
-	while [ $count -lt $max_wait ]; do
-		
-		if [ "$system" != "aix" ]; then
-			status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
-		else
-			status=$(ps exw | grep $sensu_exec | grep -v grep  | awk '{ print $1 }')
-		fi
-		count=$((count + 1)) 
-		if [ "$status" != "" ]; then
-			sleep 1
-		else
-	       		success=1
-			break
-		fi
-	done
+    while [ $count -lt $max_wait ]; do
+
+        if [ "$system" = "aix" ]; then
+            status=$(ps exw | grep $sensu_exec | grep -v grep | awk '{ print $1 }')
+        elif [ "$system" = "hpux" ];then
+            status=$(ps -ef | grep $sensu_exec | grep -v grep | awk '{ print $2 }')
+        else
+            status=$(pgrep -fl $sensu_exec | grep -v grep | grep -v bash | cut -f1 -d" ")
+        fi
+        count=$((count + 1))
+        if [ "$status" != "" ]; then
+            sleep 1
+        else
+                success=1
+            break
+        fi
+    done
 
     sleep 1
-	if [ $success = 1 ]; then
-		start
-	else
-		echo "Timed out waiting for $prog to stop"
-	  	return 1
-	fi
+    if [ $success = 1 ]; then
+        start
+    else
+        echo "Timed out waiting for $prog to stop"
+        return 1
+    fi
 
- 
+
 }
 
 case "$1" in
