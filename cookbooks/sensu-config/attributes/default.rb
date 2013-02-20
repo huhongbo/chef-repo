@@ -17,7 +17,7 @@ default["sensu"]["plugin"]["version"] = "0.1.4"
 default["sensu"]["db"]["host"] = "10.70.181.217"
 default["sensu"]["db"]["user"] = "dntmon"
 default["sensu"]["db"]["password"] = "dPassw0rd"
-
+default["sensu"]["check"]["randtime"] = 45
 case os
 when "aix"
   if platform_version =~ /5/
