@@ -20,6 +20,10 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     :short => '-s=VALUE',
     :long => '--seconds',
     :description => 'set from time seconds'
+  option :rand_time,
+    :short => '-S=VALUE',
+    :long => '--waittime',
+    :description => 'set rand time, Waiting for request'
   option :target,
     :short => '-t=VALUE',
     :long => '--target',
@@ -114,7 +118,8 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     from_time = config[:time]
     target = config[:target]
     alias_name = config[:alias].nil? ? target : config[:alias]
-
+    wait_time = config[:rand_time] ? rand(config[:rand_time].to_i) : 0
+    
     unknown_msg = {
       :base_msg => "Not find url and time and target, please -h",
       :rev_msg => "Not find -r reverse, please -h",
@@ -127,7 +132,10 @@ class CheckGraph < Sensu::Plugin::Check::CLI
       unknown msg = unknown_msg[:base_msg]
       exit
     end
-
+    
+    # rand time, Waiting for request ...
+    sleep wait_time
+    
     if config[:holt_winters]
       holt_url = "#{base_url}/render?from=-#{from_time}sen&until=now&target=#{target}&target=holtWintersConfidenceBands(#{alias_name})&format=json"
       holt_file = read_url(holt_url)
