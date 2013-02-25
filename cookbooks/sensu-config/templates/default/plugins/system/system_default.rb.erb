@@ -75,6 +75,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_sys = sar_value[2]
       cpu_wait = sar_value[3]
       cup_idle = sar_value[4]
+      cpu_total_value = 1 - cup_idle
     else
       cpu_sys, cpu_total, cpu_user, cpu_wait = cpu_quaitity_total
       
@@ -86,6 +87,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
         
       cpu_s = cpu_user.to_i + cpu_wait.to_i  + cpu_sys.to_i
       cup_idle = 100 - cpu_s
+      cpu_total_value = cpu_s
     end
     
     memory_used = mem.used.to_f / mem.total
@@ -98,7 +100,8 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
         :user => cpu_user,
         :sys =>  cpu_sys,
         :idle => cup_idle,
-        :wait => cpu_wait 
+        :wait => cpu_wait,
+        :total => cpu_total_value
       },
       :memory => {
         :mem_used => sprintf_int(memory_used),
