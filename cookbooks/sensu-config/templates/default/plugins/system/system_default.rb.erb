@@ -75,7 +75,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_sys = sar_value[2]
       cpu_wait = sar_value[3]
       cup_idle = sar_value[4]
-      cpu_total_value = 1 - cup_idle
+      cpu_total_value = 100 - cup_idle
     else
       cpu_sys, cpu_total, cpu_user, cpu_wait = cpu_quaitity_total
       
