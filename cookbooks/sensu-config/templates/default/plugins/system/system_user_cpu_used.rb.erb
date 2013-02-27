@@ -17,11 +17,11 @@ class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
     :description => "Metric naming scheme, text to prepend to .$parent.$child",
     :long => "--scheme SCHEME",
     :default => "#{Socket.gethostname}.cpu"
-    
+
   def sprintf_int(num)
     return num.nil? ? 0 : sprintf("%.0f", num.to_i * 100)
   end
-  
+
   def memd_percent(memory_value)
     memd = Sigar.new.mem
     memd_total = memd.total.to_f / 1024
@@ -40,9 +40,10 @@ class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
     when "aix"
       ps = %x[ps -eo pid,pcpu,user,rssize | grep -v PID]
     when "linux"
-      ps = %x[ps -eo pid,pcpu,user,vsz | grep -v PID]
+      ps = %x[top -b -n 1 | awk 'NR > 7 { if(length !=0) print $1,$9,$2,$10 }']
+      os = 1
     end
-     
+
     arry, mate = [],[]
     ps.each_line {|i| arry << i.split(" ") }
     user_value_hash = arry.group_by {|i| i[2] }
@@ -51,11 +52,15 @@ class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
       user_count = v.count
       cpu_total = v.map {|i| i[1].to_i}.reduce(:+)
       mem_total = v.map {|i| i[3].to_i}.reduce(:+)
-      mate << [name,{:cpu_total => cpu_total,:mem_total => memd_percent(mem_total),:count => user_count}]
+      if os == 1
+        mate << [name,{:cpu_total => cpu_total,:mem_total => mem_total,:count => user_count}]
+      else
+        mate << [name,{:cpu_total => cpu_total,:mem_total => memd_percent(mem_total),:count => user_count}]
+      end
     end
-    
+
     mate_hash = Hash[mate]
-    timestamp = Time.now.to_i 
+    timestamp = Time.now.to_i
     mate_hash.each do |parent,children|
       children.each do |child,value|
         output ["<%= node["node"]["app"] %>", config[:scheme], dname, u_dir, parent, child].join("."), value, timestamp
