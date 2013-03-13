@@ -20,11 +20,11 @@ Mash[network['interfaces']].each do |iface, iface_v|
   end
 end
 
-popen4("lscfg -v -l ent*") do |pid, stdin, stdout, stderr|
+popen4("lsdev -Ccadapter | grep ent | grep -i adap") do |pid, stdin, stdout, stderr|
   stdin.close
   stdout.each do |line|
     case line
-    when /^\s+ent(\d+)\s+\S+\s+(.+)\s+\(.+\)/
+    when /^ent(\d+)\s+\S+\s+\S+(.+)\s+\(.+\)/
       $ifName = "en" + $1
       network['interfaces'][$ifName] = Mash.new unless network['interfaces'][$ifName]
       network['interfaces'][$ifName]['name'] = $2
@@ -48,9 +48,9 @@ end
 network['interfaces'].keys.each do |ifName|
   next if ifName.match(/lo/) or ifName.match(/:/) or ifName.match(/^et\d+/)
       ppa=ifName[/\d+/]
-      popen4("lscfg -vpl ent#{ppa}") do |pid, stdin, stdout, stderr|
+      popen4("lsdev -Ccadapter | grep ent#{ppa} | grep EtherChannel ") do |pid, stdin, stdout, stderr|
         stdin.close
-        if stdout.string.empty? then
+        unless stdout.string.empty? then
           popen4("entstat -d #{ifName}") do |pid, stdin, stdout, stderr|
             member = Array.new
             stdin.close
@@ -80,11 +80,11 @@ network['interfaces'].keys.each do |ifName|
   end
 end
 
-popen4("lscfg -v -l fcs*") do  |pid, stdin, stdout, stderr|
+popen4("lsdev -Ccadapter | grep fcs | grep -i adap") do  |pid, stdin, stdout, stderr|
   stdin.close
   stdout.each do |line|
     case line
-    when /fcs(\d+)/
+    when /^fcs(\d+)/
       $fcid = "fcs" + $1
       scsiid = "fscsi" + $1
       storage[:interfaces][$fcid] = Mash.new unless storage[:interfaces][$fcid]
@@ -92,7 +92,7 @@ popen4("lscfg -v -l fcs*") do  |pid, stdin, stdout, stderr|
       popen4("lsattr -El #{scsiid}") do |pid, stdin, stdout, stderr|
         stdin.close
         stdout.each do |line|
-          if line.match(/attach\s+none/) then
+          if line.match(/attach\s+none/) || line.match(/attach\s+al/) then
                 storage[:interfaces][$fcid][:status] = "DOWN"
                 break
               else
