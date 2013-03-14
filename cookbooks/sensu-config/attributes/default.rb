@@ -47,7 +47,7 @@ default["plugin_files"] = [
                             "hpux-ruby-memory.rb",
                             "system_user_cpu_used.rb",
                             "disk_tps.rb",
-                            "scsistat_hba.rb"
+                            "hba.rb"
                           ]
 
 #default["handler_files"] = ["client-log_del.rb"]

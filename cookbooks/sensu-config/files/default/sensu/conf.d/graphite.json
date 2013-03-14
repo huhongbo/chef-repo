@@ -1,6 +1,6 @@
 {
 	"checks": {
-		"system": { 
+		"system": {
 			"type":"metric",
 			"handlers":["graphite"],
 			"command":"/etc/sensu/plugins/system/system_default.rb --scheme :::name:::",
@@ -28,10 +28,10 @@
 			"subscribers":["system"],
 			"interval":60
 		},
-		"scsistat": {
+		"hba": {
 			"type":"metric",
 			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/scsistat_hba.rb --scheme :::name:::",
+			"command":"/etc/sensu/plugins/system/hba.rb --scheme :::name:::",
 			"subscribers":["system"],
 			"interval":60
 		},
