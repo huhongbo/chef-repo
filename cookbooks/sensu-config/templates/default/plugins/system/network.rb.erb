@@ -19,7 +19,7 @@ class InterfaceGraphite < Sensu::Plugin::Metric::CLI::Graphite
     :default => "#{Socket.gethostname}.interface"
 
   def run
-    dname = "system.interface"
+    dname = "interface"
 
     sigar = Sigar.new
     iflist = sigar.net_interface_list

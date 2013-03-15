@@ -64,7 +64,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
   end
 
   def run
-    dname = "system"   
+    #dname = "system"   
     sigar = Sigar.new
     sys_info = sigar.sys_info.name.downcase
     mem, swap = sigar.mem, sigar.swap 
@@ -112,7 +112,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
         
     metrics.each do |parent, children|
       children.each do |child, value|
-        output ["<%= @path %>", config[:scheme], dname, parent, child].join("."), value, timestamp
+        output ["<%= @path %>", config[:scheme], parent, child].join("."), value, timestamp
       end
     end
     ok  

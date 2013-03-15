@@ -108,7 +108,7 @@ end
 
 
 #graphite whisper directory
-dom_conf = data_bag_item('sensu','domai')
+dom_conf = data_bag_item('sensu','domain')
 if dom_conf[node.hostname]
   domain_path = dom_conf[node.hostname]["ndom"] + "." + dom_conf[node.hostname]["nsubdom"]
 else
