@@ -57,9 +57,9 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
             rx_bytes = oibytes
             tx_bytes = oobytes
             if i.eql?(1)
-              f_value = {rx_iops:rx_iops,tx_iops:tx_iops,rx_bytes:rx_bytes,tx_bytes:tx_bytes}
+              f_value = {:rx_iops=>rx_iops,:tx_iops=>tx_iops,:rx_bytes=>rx_bytes,:tx_bytes=>tx_bytes}
             elsif i.eql?(2)
-              n_value = {rx_iops:rx_iops,tx_iops:tx_iops,rx_bytes:rx_bytes,tx_bytes:tx_bytes}
+              n_value = {:rx_iops=>rx_iops,:tx_iops=>tx_iops,:rx_bytes=>rx_bytes,:tx_bytes=>tx_bytes}
             end
           end
         end
