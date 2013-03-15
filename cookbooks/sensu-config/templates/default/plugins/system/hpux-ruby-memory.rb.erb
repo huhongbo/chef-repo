@@ -23,7 +23,7 @@ class RubyMemory < Sensu::Plugin::Metric::CLI::Graphite
     :default => "#{Socket.gethostname}.rubymemory"
 
   def run
-    dname = "system"
+    #dname = "system"
 
     pid = File.read("/var/run/sensu-client.pid").to_i
     result = %x[pmap #{pid} | tail -2 | head -1].chomp.strip.split(" ")
@@ -40,7 +40,7 @@ class RubyMemory < Sensu::Plugin::Metric::CLI::Graphite
     `/sbin/init.d/sensu_client restart` if metrics[:ruby_memory][:vsz_total].to_i > 150 || metrics[:ruby_memory][:rsz_total].to_i > 100  
     metrics.each do |parent, children|
       children.each do |child, value|      
-        output ["<%= node["node"]["app"] %>", config[:scheme], dname, parent, child].join("."), value, timestamp
+        output ["<%= @path %>", config[:scheme], parent, child].join("."), value, timestamp
       end
     end
     ok

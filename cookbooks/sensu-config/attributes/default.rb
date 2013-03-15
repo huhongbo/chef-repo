@@ -4,11 +4,11 @@ default["graphite"]["ser_ip"] = "10.70.181.217"
 
 default["sensu"]["path"] = "/etc/sensu"
 
-if node["system"].nil? or node["system"]["Business"].nil?
-  default["node"]["app"] = "Zmcc"
-else
-  default["node"]["app"] = node["system"]["Business"]
-end
+#if node["system"].nil? or node["system"]["Business"].nil?
+default["node"]["app"] = "OTHER.SUBOTHER"
+#else
+#  default["node"]["app"] = node["system"]["Business"]
+#end
 
 default["sensu"]["package"] = "sensu"
 default["sensu"]["version"] = "0.9.7"
@@ -49,6 +49,6 @@ default["plugin_files"] = [
                             "disk_tps.rb",
                             "hba.rb"
                           ]
-
+                          
 #default["handler_files"] = ["client-log_del.rb"]
 #default["conf_files"] = ["client.json", "check_cpu.json"]
