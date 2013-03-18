@@ -103,7 +103,7 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
   end
 
   def run
-    dname = "system"
+    #dname = "system"
     dir_name = "hba"
 
     uname = RbConfig::CONFIG['host_os']
@@ -117,7 +117,7 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
     timestamp = Time.now.to_i
     metrics.each do |parent, children|
       children.each do |child, value|
-      output ["<%= node["node"]["app"] %>", config[:scheme], dname, dir_name, parent, child].join("."), value, timestamp
+      output ["<%= @path %>", config[:scheme], dir_name, parent, child].join("."), value, timestamp
       end
     end
     ok
