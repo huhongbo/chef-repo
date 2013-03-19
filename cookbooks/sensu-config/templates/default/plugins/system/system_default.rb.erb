@@ -46,7 +46,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
   
   def cpu_quaitity_total
     arry_sys,arry_total,arry_user,arry_wait = [],[],[],[]
-    5.times do
+    30.times do
       cpu = Sigar.new.cpu
       arry_sys << cpu.sys
       arry_total << cpu.total
@@ -70,7 +70,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
     mem, swap = sigar.mem, sigar.swap 
     
     if sys_info == "hpux" or sys_info == "aix"
-      sar_value = convert_integers(`sar -u 1 3|tail -n1`.split(" "))
+      sar_value = convert_integers(`sar -u 1 30|tail -n1`.split(" "))
       cpu_user = sar_value[1]
       cpu_sys = sar_value[2]
       cpu_wait = sar_value[3]
