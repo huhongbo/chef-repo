@@ -34,7 +34,7 @@
 		},
 		"cpu": {
 			"handlers":["default"],	  	
-	      	"command": "/etc/sensu/plugins/check_graph.rb -t '<%= "*.*." + node.hostname  %>.cpu.total' -s 900<%= @check_hash['cpu'] ? " -w #{@check_hash['cpu']['warning']} -c #{@check_hash['cpu']['critical']}" : " -w 90 -c 95" %> -n 'CPU avg usage' -S <%= node["sensu"]["check"]["randtime"] %>",
+	      	"command": "/etc/sensu/plugins/check_graph.rb --scheme :::name::: -s 900<%= @check_hash['cpu'] ? " -w #{@check_hash['cpu']['warning']} -c #{@check_hash['cpu']['critical']}" : " -w 90 -c 95" %> -n 'CPU avg usage' -S <%= node["sensu"]["check"]["randtime"] %>",
 	      	"subscribers":["system"],
 	      	"notification":"CPU AVG HIGH",
 	      	"interval": 900,
@@ -42,7 +42,7 @@
 		},
 		"stdev_cpu": {
 			"handlers":["default"],
-			"command": "/etc/sensu/plugins/check_graph.rb -t 'stdev(movingAverage(<%= "*.*." + node.hostname  %>.cpu.total,60),60)' -s 7200<%= @check_hash['stdev_cpu'] ? " -w #{@check_hash['stdev_cpu']['warning']} -c #{@check_hash['stdev_cpu']['critical']}" : " -w 8 -c 10" %> -r -n 'CPU stdev change' -S <%= node["sensu"]["check"]["randtime"] %>",
+			"command": "/etc/sensu/plugins/check_graph.rb --scheme :::name::: -s 7200<%= @check_hash['stdev_cpu'] ? " -w #{@check_hash['stdev_cpu']['warning']} -c #{@check_hash['stdev_cpu']['critical']}" : " -w 8 -c 10" %> -r -n 'CPU stdev change' -S <%= node["sensu"]["check"]["randtime"] %>",
 			"subscribers":["system"],
 			"notification":"CPU Stdev HIGH",
 	      	"interval": 3600,
