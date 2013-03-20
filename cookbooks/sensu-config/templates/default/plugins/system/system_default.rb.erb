@@ -18,9 +18,9 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
     :long => "--scheme SCHEME",
     :default => "#{Socket.gethostname}.system.system"
     
-  def sprintf_int(num,prect=100)
+  def sprintf_int(num,prect=100,intf=0)
     num = 0 unless num
-    sprintf("%.0f", num*prect)
+    sprintf("%.#{intf}f", num*prect)
   end
   
   def convert_integers(values)
@@ -76,7 +76,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_wait = sar_value[3]
       cup_idle = sar_value[4]
       cpu_total_value = 100 - cup_idle
-      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01)
+      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01,3)
       
     else
       cpu_sys, cpu_total, cpu_user, cpu_wait = cpu_quaitity_total
@@ -90,7 +90,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_s = cpu_user.to_i + cpu_wait.to_i  + cpu_sys.to_i
       cup_idle = 100 - cpu_s
       cpu_total_value = cpu_s
-      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01)
+      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01,3)
     end
     
     memory_used = mem.used.to_f / mem.total
