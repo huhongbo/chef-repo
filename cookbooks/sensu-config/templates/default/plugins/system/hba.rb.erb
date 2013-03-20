@@ -32,7 +32,7 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
       fcsid = fcs.match(/\d+/)
       fscsiname = "fscsi" + fcsid.to_s
       fcsname = "fcs" + fcsid.to_s
-      fscsilist = %x[lsattr -El #{fscsiname}]
+      fscsilist = %x[lsattr -El #{fscsiname} 2>/dev/null]
       i = 0
       f_value, n_value = Hash.new,Hash.new
       2.times do
