@@ -24,6 +24,10 @@ class CheckGraph < Sensu::Plugin::Check::CLI
     :short => '-S=VALUE',
     :long => '--waittime',
     :description => 'set rand time, Waiting for request'
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME"
+    #:default => "#{Socket.gethostname}"
   option :target,
     :short => '-t=VALUE',
     :long => '--target',
@@ -116,7 +120,16 @@ class CheckGraph < Sensu::Plugin::Check::CLI
   def run
     base_url = config[:base_url]
     from_time = config[:time]
-    target = config[:target]
+    target = nil
+    if config[:target]
+      target = config[:target]
+    elsif config[:scheme]
+      target = "*.*."+ config[:scheme].to_s + ".cpu.total"
+      target = "stdev(movingAverage(*.*." + config[:scheme].to_s + ".cpu.total,60),60)" if config[:reverse]
+    end
+      
+    #puts target
+    
     alias_name = config[:alias].nil? ? target : config[:alias]
     wait_time = config[:rand_time] ? rand(config[:rand_time].to_i) : 0
     

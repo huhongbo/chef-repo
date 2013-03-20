@@ -111,15 +111,17 @@ end
 dom_conf = data_bag_item('sensu','domain')
 if dom_conf[node.hostname]
   domain_path = dom_conf[node.hostname]["ndom"] + "." + dom_conf[node.hostname]["nsubdom"]
+  cpu_c = dom_conf[node.hostname]["tpcc"].to_i.to_f / 1000000
 else
   domain_path = node["node"]["app"]
+  cpu_c = 0
 end
 
 ## template load plugin systems script
 node["plugin_files"].each do |pluginfile|
   template "#{node["sensu"]["path"]}/plugins/system/#{pluginfile}" do
     source "plugins/system/#{pluginfile}.erb"
-    variables(:path => domain_path)
+    variables(:path => domain_path,:cpu_tp=>cpu_c)
     mode 0755
   end
 end
