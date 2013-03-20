@@ -128,7 +128,7 @@ class CheckGraph < Sensu::Plugin::Check::CLI
       target = "stdev(movingAverage(*.*." + config[:scheme].to_s + ".cpu.total,60),60)" if config[:reverse]
     end
       
-    puts target
+    #puts target
     
     alias_name = config[:alias].nil? ? target : config[:alias]
     wait_time = config[:rand_time] ? rand(config[:rand_time].to_i) : 0
