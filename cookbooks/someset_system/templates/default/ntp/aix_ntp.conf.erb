@@ -14,7 +14,7 @@
 #
 broadcastclient
 <% @def_ntp.each_with_index do |n,i| %>
-server <%= i %> version 3 <%= "perfer" if i.eql?(0) %>
+server <%= n %> version 3 <%= "perfer" if i.eql?(0) %>
 <% end %>
 driftfile /etc/ntp.drift
 tracefile /etc/ntp.trace
