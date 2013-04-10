@@ -21,8 +21,7 @@ end
 if node['os'].eql?("aix")
   template "/etc/init.d/ntp" do
     source "aix_ntpxd.erb"
-    files_mode 0755
-    #notifies :restart, "service[ntp]", :delayed
+    mode 0755
   end
 end
 
