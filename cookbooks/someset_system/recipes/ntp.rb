@@ -27,7 +27,7 @@ service "ntp" do
     service_name "xntpd"
     provider Chef::Provider::Service::Hpux
   when "aix"
-    #service_name "xntpd"
+    service_name "xntpd"
     pattern "xntpd"
     start_command "startsrc -s xntpd"
     stop_command "stopsrc -s xntpd"
