@@ -10,7 +10,7 @@ ntp_group = value_for_platform(
   "hpux" => {"default"=>"hpux_ntp.conf.erb"}
 })
 
-puts ntp_group
+#puts ntp_group
 
 template file do
   source "ntp/#{ntp_group}"
@@ -18,6 +18,13 @@ template file do
   #notifies :restart, "service[ntp]", :delayed
 end
 
+if node['os'].eql?("aix")
+  template "/etc/init.d/ntp" do
+    source "aix_ntpxd.erb"
+    files_mode 0755
+    #notifies :restart, "service[ntp]", :delayed
+  end
+end
 
 #server
 
@@ -26,13 +33,6 @@ service "ntp" do
   when "hpux"
     service_name "xntpd"
     provider Chef::Provider::Service::Hpux
-  when "aix"
-    service_name "xntpd"
-    pattern "xntpd"
-    start_command "startsrc -s xntpd"
-    stop_command "stopsrc -s xntpd"
-    restart_command "stopsrc -s xntpd && sleep 2 && startsrc -s xntpd"
-    status_command "ps exw | grep xntpd | grep -v grep | awk '{ print $1 }'"
   end
   supports :restart => true, :status => true
   action :start
