@@ -1,0 +1,7 @@
+# /etc/ntp.conf, configuration for ntpd; see ntp.conf(5) for help
+
+driftfile /var/lib/ntp/ntp.drift
+
+<% @def_ntp.each_with_index do |n,i| %>
+server <%= n %> version 3 <%= "perfer" if i.eql?(0) %>
+<% end %>

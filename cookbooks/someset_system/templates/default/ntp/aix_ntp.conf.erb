@@ -1,0 +1,20 @@
+# @(#)48        1.2  src/tcpip/etc/ntp.conf, ntp, tcpip530 2/16/96 10:16:34
+# IBM_PROLOG_BEGIN_TAG
+# This is an automatically generated prolog.
+#
+#   (C) COPYRIGHT International Business Machines Corp. 1996
+#   All Rights Reserved
+#   Licensed Materials - Property of IBM
+#   US Government Users Restricted Rights - Use, duplication or
+#   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+#
+# Default NTP configuration file.
+#
+#   Broadcast client, no authentication.
+#
+broadcastclient
+<% @def_ntp.each_with_index do |n,i| %>
+server <%= i %> version 3 <%= "perfer" if i.eql?(0) %>
+<% end %>
+driftfile /etc/ntp.drift
+tracefile /etc/ntp.trace

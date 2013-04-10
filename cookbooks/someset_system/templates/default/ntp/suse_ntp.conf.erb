@@ -1,0 +1,17 @@
+################################################################################
+## /etc/ntp.conf
+################################################################################
+
+##
+## Undisciplined Local Clock. This is a fake driver intended for backup
+## and when no outside source of synchronized time is available.
+##
+*server 127.127.1.0
+# local clock (LCL)
+*fudge 127.127.1.0 stratum 10
+# LCL is unsynchronized
+<% @def_ntp.each_with_index do |n,i| %>
+server <%= n %>  mode 5 <%= "prefer" if i.eql?(0) %>
+<% end %>
+
+driftfile /var/lib/ntp/drift/ntp.drift
