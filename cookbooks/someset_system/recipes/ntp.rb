@@ -11,11 +11,21 @@ ntp_group = value_for_platform(
 })
 
 #puts ntp_group
+ntp_data_value = data_bag_item('config','ntp')
+ntp_server_ip = node['ntp']['server']
+other_conf = []
+if ntp_data_value[node.hostname]
+  ntp_server_ip = ntp_data_value[node.hostname]['ip']
+  other_conf = ntp_data_value[node.hostname]['other']
+elsif ntp_data_value['default']
+  ntp_server_ip = ntp_data_value['default']['ip']
+  other_conf = ntp_data_value['default']['other']
+end
+
 
 template file do
   source "ntp/#{ntp_group}"
-  variables(:def_ntp => node['ntp']['server'])
-  #notifies :restart, "service[ntp]", :delayed
+  variables(:def_ntp => ntp_server_ip,:othconf=>other_conf)
 end
 
 if node['os'].eql?("aix")

@@ -14,4 +14,9 @@
 server <%= n %>  mode 5 <%= "prefer" if i.eql?(0) %>
 <% end %>
 
+#other conf
+<% @othconf.each do |conf| %>
+<%= conf %>
+<% end %>
+
 driftfile /var/lib/ntp/drift/ntp.drift
