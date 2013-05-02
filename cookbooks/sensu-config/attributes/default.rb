@@ -1,3 +1,6 @@
+require 'rbconfig'
+
+
 default["graphite"]["url"] = "graphite.zj.chinamobile.com"
 default["graphite"]["ser_ip"] = "10.70.181.217"
 
@@ -18,6 +21,17 @@ default["sensu"]["db"]["host"] = "10.70.181.217"
 default["sensu"]["db"]["user"] = "dntmon"
 default["sensu"]["db"]["password"] = "dPassw0rd"
 default["sensu"]["check"]["randtime"] = 45
+
+default["sensu"]["windows"]["ruby_bin"] = "C:/opscode/chef/embedded/bin/ruby.exe"
+default["sensu"]["windows"]["sensu_bin"] = "C:/opscode/chef/embedded/bin/sensu-client"
+default["sensu"]["windows"]["path"] = "C:/etc/sensu"
+default["sensu"]["windows"]["log_dir"] = "C:/etc/log/sensu"
+
+default["sensu"]["windows"]["winsw_dir"] = "C:/opscode/chef/bin"
+
+
+
+
 case os
 when "aix"
   if platform_version =~ /5/
@@ -40,6 +54,7 @@ else
 end
 
 
+
 default["plugin_files"] = [
                             "network.rb",
                             "load.rb",
@@ -50,5 +65,6 @@ default["plugin_files"] = [
                             "hba.rb"
                           ]
                           
+
 #default["handler_files"] = ["client-log_del.rb"]
 #default["conf_files"] = ["client.json", "check_cpu.json"]
