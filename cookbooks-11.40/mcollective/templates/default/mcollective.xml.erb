@@ -1,0 +1,12 @@
+<!--
+  Windows service definition for Mcollective
+-->
+<service>
+  <id>mcollective</id>
+  <name>Mcollectived</name>
+  <description>This service runs a Mcollective server</description>
+  <executable><%= node["mcollective"]["windows"]["ruby_bin"] %></executable>
+  <arguments><%= node["mcollective"]["windows"]["bin"] %> --config=<%= node["mcollective"]["config_dir"] %>/server.cfg</arguments>
+  <logmode>rotate</logmode>
+  <logpath><%= node["mcollective"]["config_dir"] %>/log</logpath>
+</service>

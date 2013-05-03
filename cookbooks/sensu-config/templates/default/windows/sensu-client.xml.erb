@@ -1,0 +1,12 @@
+<!--
+  Windows service definition for Sensu
+-->
+<service>
+  <id>sensu-client</id>
+  <name>Sensu Client</name>
+  <description>This service runs a Sensu client</description>
+  <executable><%= node["sensu"]["windows"]["ruby_bin"] %></executable>
+  <arguments><%= node["sensu"]["windows"]["sensu_bin"] %> -d <%= node["sensu"]["windows"]["path"] %> -l <%= node["sensu"]["windows"]["log_dir"] %>/sensu-client.log</arguments>
+  <logmode>rotate</logmode>
+  <logpath><%= node["sensu"]["windows"]["log_dir"] %></logpath>
+</service>

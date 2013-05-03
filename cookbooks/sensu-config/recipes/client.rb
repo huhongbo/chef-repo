@@ -10,6 +10,104 @@
 #
 #include_recipe "sensu-config::default"
 
+
+
+case node.platform
+when "windows"
+  ## write windows sensu client config
+  directory "#{node["sensu"]["windows"]["path"]}" do
+    action :create
+  end
+
+  directory "#{node["sensu"]["windows"]["path"]}/conf.d" do
+    action :create
+  end
+  directory "#{node["sensu"]["windows"]["path"]}/plugins" do
+    action :create
+  end
+  directory "#{node["sensu"]["windows"]["path"]}/handlers" do
+    action :create
+  end
+  directory "C:/etc/log" do
+    action :create
+  end
+  directory "#{node["sensu"]["windows"]["log_dir"]}" do
+    action :create
+  end
+  
+  
+  conf_json = {
+    "rabbitmq"=> {
+      "port"=> 5672,
+      "host"=> "10.211.55.11",
+      "user"=> "sensu",
+      "password"=> "admin",
+      "vhost"=> "/sensu"
+    }
+  }
+  
+  
+  file "#{node["sensu"]["windows"]["path"]}/config.json" do
+    content conf_json.to_json
+    action :create
+    notifies :run, "execute[restart sensu-client using winsw wrapper]", :delayed
+  end
+  
+  #write file client.json 
+  client_cotent = {
+    "client"=> {
+      "name"=> node.hostname,
+	    "safe_mode"=> true,
+      "address"=> node.ipaddress,
+      "subscriptions"=> ["system"]
+      }
+    }
+  file "#{node["sensu"]["windows"]["path"]}/conf.d/client.json" do
+    content client_cotent.to_json
+    action :create
+    notifies :run, "execute[restart sensu-client using winsw wrapper]", :delayed
+  end
+  ["win_sysinfo.rb","win_network.rb","check_infos.rb"].each do |f|
+    template "#{node["sensu"]["windows"]["path"]}/plugins/#{f}" do
+      source "windows/plugins/#{f}.erb"
+    end
+  end
+  cookbook_file "#{node["sensu"]["windows"]["path"]}/conf.d/graphite.json" do
+    source "windows/graphite.json"
+    notifies :run, "execute[restart sensu-client using winsw wrapper]", :delayed
+  end
+  
+  
+  winsw_path = node["sensu"]["windows"]["winsw_dir"]
+  template "#{winsw_path}/sensu-client.xml" do
+    source "windows/sensu-client.xml.erb"
+    notifies :run, "execute[restart sensu-client using winsw wrapper]", :delayed
+  end
+  cookbook_file "#{winsw_path}/sensu-client.exe" do
+    source "windows/services/winsw-1.9-bin.exe"
+    not_if { File.exists?("#{winsw_path}/sensu-client.exe") }
+  end
+  
+  execute "restart sensu-client using winsw wrapper" do
+    command "#{winsw_path}/sensu-client.exe restart"
+    not_if { WMI::Win32_Service.find(:first, :conditions => {:name => "sensu-client"}).nil? }
+    action :nothing
+  end
+  
+  execute "Install sensu-client service using winsw" do
+    command "#{winsw_path}/sensu-client.exe install"
+    only_if { WMI::Win32_Service.find(:first, :conditions => {:name => "sensu-client"}).nil? }
+  end
+  
+  service "sensu-client" do
+    action :start
+  end
+  
+else
+## Linux Unix ...  
+
+  config = data_bag_item('sensu','config')
+  conf_json = {:rabbitmq => config['rabbitmq']}
 #add graphite web url to hosts
 hosts_file = File.open("/etc/hosts").read
 unless hosts_file.include?("#{node["graphite"]["url"]}")
@@ -57,8 +155,8 @@ else
 end
 
 #create sensu config.json file
-config = data_bag_item('sensu','config')
-conf_json = {:rabbitmq => config['rabbitmq']}
+#config = data_bag_item('sensu','config')
+#conf_json = {:rabbitmq => config['rabbitmq']}
 file "#{node["sensu"]["path"]}/config.json" do
   content conf_json.to_json
   action :create
@@ -163,5 +261,7 @@ if File.exist?("/var/log/sensu-client.log")
         action :restart
     end
   end
+end
+  
 end
 
