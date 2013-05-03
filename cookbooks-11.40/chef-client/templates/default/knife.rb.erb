@@ -1,0 +1,9 @@
+log_level :info
+log_location STDOUT
+node_name '<%= node.name %>'
+client_key '<%= node["chef_client"]["conf_dir"] %>/client.pem'
+validation_client_name 'chef-validator'
+validation_key '<%= node["chef_client"]["conf_dir"] %>/validation.pem'
+chef_server_url '<%= node["chef_client"]["server_url"] %>'
+cache_type 'BasicFile'
+cache_options(:path => '<%= @path %>/checksums')

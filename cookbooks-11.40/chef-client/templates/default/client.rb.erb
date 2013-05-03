@@ -1,0 +1,16 @@
+log_level        :info
+log_location     STDOUT
+
+chef_server_url  "<%= @chef_server_url %>"
+validation_client_name "<%= @validation_client_name %>"
+# Using default node name
+<% if node.platform.eql?("windows") %>
+validation_key  "<%= node["chef_client"]["conf_dir"] %>/validation.pem"
+client_key  "<%= node["chef_client"]["conf_dir"] %>/client.pem"
+cache_options ({:path => "c:/etc/chef/cache/checksums", :skip_expires => true})
+<% end %>
+
+file_backup_path   "<%= @file_backup_path %>"
+file_cache_path    "<%= @file_cache_path %>"
+Ohai::Config[:plugin_path] << '<%= @chef_ohai_pulgins %>'
+Ohai::Config[:disabled_plugins] = <%= @disabled_plugins %>
