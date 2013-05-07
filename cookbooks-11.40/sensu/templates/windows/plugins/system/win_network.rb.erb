@@ -63,8 +63,9 @@ class InterfaceWin < Sensu::Plugin::Metric::CLI::Graphite
     values = network_value
     timestamp = Time.now.to_i
     values.each do |parent, children|
+      strf_parent = parent.split(" ").join("_")
       children.each do |child, value|
-        output ["<%= @path %>",config[:scheme], dname, parent, child].join("."), value, timestamp
+        output ["<%= @path %>",config[:scheme], dname, strf_parent, child].join("."), value, timestamp
       end
     end
     ok
