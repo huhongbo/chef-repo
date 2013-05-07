@@ -36,6 +36,7 @@ client = {
   "client"=> {
     "name"=> node.hostname,
     "address"=> node.ipaddress,
+    "safe_mode"=>true,
     "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
   }
 }
