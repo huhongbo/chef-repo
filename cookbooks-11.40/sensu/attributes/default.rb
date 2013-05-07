@@ -49,6 +49,37 @@ default["sensu"]["system_script"] = [
                                         ]
 
 
+default["sensu"]["default_value"] = {
+  default: {
+    cpu: {
+      warning: 95,
+      critical: 100
+    },
+    stdev_cpu: {
+      warning: 10,
+      critical: 12
+    },
+    filesystem_event: {
+      warning: 90,
+      critical: 95
+    },
+    memory_event: {
+      warning: 90,
+      critical: 95
+    },
+    swap_event: {
+      warning: 95,
+      critical: 98
+    },
+    proc_event: {
+      warning: 90,
+      critical: 95
+    }
+  },
+  check_source_list: ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
+} 
+
+
 
 case node['platform_family']
 when "windows"
