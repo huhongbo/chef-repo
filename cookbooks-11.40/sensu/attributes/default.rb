@@ -1,6 +1,6 @@
 require 'rbconfig'
 
-default["graphite"]["url"] = "graphite.zj.chinamobile.com"
+default["graphite"]["url"] = "graphite1.dntmon.com"
 default["graphite"]["ser_ip"] = "10.70.181.217"
 
 
@@ -25,7 +25,7 @@ default["senus"]["server"]["user"] = "dntmon"
 default["senus"]["server"]["group"] = "dntmon"
 
 # sensu server handler warn data insert db config
-default["sensu"]["warn_db"]["host"] = "10.211.55.16"
+default["sensu"]["warn_db"]["host"] = "127.0.0.1"
 default["sensu"]["warn_db"]["user"] = "dntmon"
 default["sensu"]["warn_db"]["password"] = "dPassw0rd"
 

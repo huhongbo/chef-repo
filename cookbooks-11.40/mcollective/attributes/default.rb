@@ -2,7 +2,6 @@
 require 'rbconfig'
 
 # stomp config
-#default["mcollective"]["stomp"]["host"] = "chefserver-ubuntu"
 default["chef"]["server"]["hostname"] = "chef-server"
 default["mcollective"]["stomp"]["host"] = node["chef"]["server"]["hostname"]
 default["mcollective"]["stomp"]["port"] = "61613"
