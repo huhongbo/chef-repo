@@ -15,24 +15,6 @@
 			"subscribers":["system"],
 			"interval":60,
 			"standalone":true
-			},
-		"disks_event": {
-			"handlers":["default"],
-		    "command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -f -w 80 -c 95",
-		    "subscribers":["system"],
-		    "notification":"Filesystem Full",
-		    "interval": 60,
-		    "refresh": 3600,
-			"standalone":true
-		},
-		"Process_event": {
-			"handlers":["default"],
-		    "command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -p -w 50 -c 75",
-		    "subscribers":["system"],
-		    "notification":"Process ok",
-		    "interval": 60,
-		    "refresh": 3600,
-			"standalone":true
-		}
+			}
 	}
 }

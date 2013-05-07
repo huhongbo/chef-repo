@@ -2,7 +2,7 @@
 	"checks": {
 		"filesystem_event": {
 			"handlers":["default"],
-	      	"command": "<%= node["sensu"]["plugins"] %>/check_system_event.rb -f<%= " -w #{@check_hash['filesystem_event']['warning']} -c #{@check_hash['filesystem_event']['critical']}" if @check_hash['filesystem_event'] %>",
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -f<%= " -w #{@check_hash['filesystem_event']['warning']} -c #{@check_hash['filesystem_event']['critical']}" if @check_hash['filesystem_event'] %>",
 	      	"subscribers":["system"],
 	      	"notification":"Filesystem Full",
 	      	"interval": 60,
@@ -10,7 +10,7 @@
 		},
 		"proc_event": {
 		 	"handlers":["default"],
-	      	"command": "<%= node["sensu"]["plugins"] %>/check_max_proc.rb -p<%= " -w #{@check_hash['proc_event']['warning']} -c #{@check_hash['proc_event']['critical']}" if @check_hash['proc_event'] %>",
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -p<%= " -w #{@check_hash['proc_event']['warning']} -c #{@check_hash['proc_event']['critical']}" if @check_hash['proc_event'] %>",
 	      	"subscribers":["system"],
 	      	"notification":"Proc High",
 	      	"interval": 300,
