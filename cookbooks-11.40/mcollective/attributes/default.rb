@@ -12,7 +12,7 @@ default["mcollective"]["stomp"]["password"] = "Passw0rd"
 default["mcollective"]["version"] = "2.2.3"
 
 # mcollective plugins path
-default["mcollective"]["config_dir"] = "/etc/mcollective/"
+default["mcollective"]["config_dir"] = "/etc/mcollective"
 default["mcollective"]["libdir"] = "#{node["mcollective"]["config_dir"]}/mcollective-plugins"
 
 default["mcollective"]["log_dir"] = "/var/log"
