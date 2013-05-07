@@ -100,6 +100,8 @@ end
 template "#{node["sensu"]["conf.d"]}/check_event.json" do
   source "conf.d/check_event.json.erb"
   variables(:check_hash => Hash[check_array])
+  owner "dntmon"
+  group "dntmon"
   notifies :run, "execute[restart sensu-server]", :delayed
   notifies :run, "execute[restart sensu-client]", :delayed
 end
@@ -122,6 +124,8 @@ node["sensu"]["system_script"].each do |script|
     source "plugins/system/#{script}.erb"
     variables(:path => domain_path,:cpu_tp=>cpu_c)
     mode 0755
+    owner "dntmon"
+    group "dntmon"
   end
 end
 
