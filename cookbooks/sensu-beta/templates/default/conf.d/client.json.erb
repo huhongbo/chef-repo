@@ -1,0 +1,10 @@
+{
+  "client": {
+    "name": "<%= node.hostname %>",
+	"safe_mode":true,
+    "address": "<%= node.ipaddress %>",
+    "subscriptions": [
+	  "system"<% if node["tags"].include?("cpu") %>, "user_cpu"<% end %><% if node["platform"] == "hpux" %>, "hpux"<% end %>
+  	]
+  }
+}

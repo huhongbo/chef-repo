@@ -1,0 +1,28 @@
+topicprefix = /topic/
+main_collective = mcollective
+collectives = mcollective
+identity = <%= node.hostname %>
+libdir = <%= node["mcollective"]["libdir"] %>
+logfile = <%= node["mcollective"]["log_dir"] %>/mcollective.log
+loglevel = info
+daemonize = <%= node.platform.eql?("windows") ? 0 : 1 %>
+
+# Plugins
+securityprovider = psk
+plugin.psk = <%= node["mcollective"]["psk"] %>
+
+connector = rabbitmq
+plugin.rabbitmq.vhost = /mcollective
+plugin.rabbitmq.pool.size = 1
+plugin.rabbitmq.pool.1.host =  <%= node["mcollective"]["stomp"]["host"] %>
+plugin.rabbitmq.pool.1.port = <%= node["mcollective"]["stomp"]["port"] %>
+plugin.rabbitmq.pool.1.user = <%= node["mcollective"]["stomp"]["user"] %>
+plugin.rabbitmq.pool.1.password = <%= node["mcollective"]["stomp"]["password"] %>
+
+# Facts
+factsource = yaml
+plugin.yaml = /etc/mcollective/facts.yaml
+
+
+classesfile = /etc/mcollective/chefnode.txt
+

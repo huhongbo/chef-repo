@@ -1,0 +1,1 @@
+{"id":"config","version":"0.9.7-1","rabbitmq":{"host":"pc-monsvc","port":5672,"vhost":"/sensu","user":"sensu","password":"admin"},"redis":{"host":"pc-monsvc","port":6379},"api":{"host":"pc-monsvc","port":4567,"user":"admin","password":"admin"},"dashboard":{"host":"pc-monsvc","port":8083,"user":"admin","password":"admin"}}

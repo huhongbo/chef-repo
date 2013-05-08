@@ -1,0 +1,79 @@
+# system default plugin
+# network values to windows
+# code dn365
+# v0.01
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require "ruby-wmi"
+require "ohai/mash"
+
+$VERBOSE = nil
+class InterfaceWin < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}"
+    
+    
+  
+  def network_value
+    #network_name = []
+    #adapters = WMI::Win32_NetworkAdapter.find(:all)
+    #adapters.each do |ad|
+      # To compatible NT 4.0
+    #  if ad.MACAddress #and ad.NetEnabled
+    #   network_name << ad.Name
+    #  end
+    #end
+    old_data = Mash.new
+    new_data = Mash.new
+    index = 0
+    2.times do
+      index += 1
+      tcp_adap = WMI::Win32_PerfRawData_Tcpip_NetworkInterface.find(:all)
+      tcp_adap.each do |tcp|
+        #if network_name.to_s.include?(tcp.name.split(" ")[-2] || tcp.name)
+          temp_data = index.eql?(1) ? old_data : new_data
+          temp_data[tcp.name] = Mash.new
+          temp_data[tcp.name]["received"] = tcp.BytesReceivedPerSec.to_i
+          temp_data[tcp.name]["send"] = tcp.BytesSentPerSec.to_i
+          #end
+      end
+      sleep 1
+    end
+    
+    network = Mash.new
+    rx_Bytes_total = 0
+    tx_Bytes_total = 0
+    new_data.each do |name,value|
+      #network[name] = Mash.new
+      rx_Bytes = value["received"] - old_data[name]["received"]
+      tx_Bytes = value["send"] - old_data[name]["send"]
+      rx_Bytes_total += rx_Bytes
+      tx_Bytes_total += tx_Bytes
+      #network[name]["rx_Bytes"] = rx_Bytes
+      #network[name]["tx_Bytes"] = tx_Bytes
+    end
+    network["network"] = Mash.new
+    network["network"]["rx_Bytes"] = rx_Bytes_total
+    network["network"]["tx_Bytes"] = tx_Bytes_total
+    
+    return network
+  end
+    
+    
+  def run
+    dname = "interface"
+    values = network_value
+    timestamp = Time.now.to_i
+    values.each do |parent, children|
+      children.each do |child, value|
+        output ["<%= @path %>", config[:scheme], parent, child].join("."), value, timestamp
+      end
+    end
+    ok
+  end
+end

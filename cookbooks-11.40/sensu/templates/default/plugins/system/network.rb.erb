@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+# network interface
+# code dn365
+# v 0.02
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require 'sigar'
+
+$VERBOSE = nil
+class InterfaceGraphite < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to metric",
+    :short => "-s SCHEME",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}"
+
+  def run
+    dname = "interface"
+
+    sigar = Sigar.new
+    iflist = sigar.net_interface_list
+    mate_arry = []
+    iflist.each do |ifname|        
+      if !ifname.include?(":")
+        begin
+          ifstat = sigar.net_interface_stat(ifname)        
+        rescue
+          next
+        end 
+        rx_bytes, tx_bytes = ifstat.rx_bytes, ifstat.tx_bytes
+        sleep 1         
+        ifstat_new = sigar.net_interface_stat(ifname)
+        rx_bytes = ifstat_new.rx_bytes - rx_bytes
+        tx_bytes = ifstat_new.tx_bytes - tx_bytes
+        rx_bytes = 0 unless rx_bytes >= 0 
+        tx_bytes = 0 unless tx_bytes >= 0
+        mate_arry << [ifname,{:rx_Bytes => rx_bytes.to_i, :tx_Bytes => tx_bytes.to_i}]        
+      end
+    end
+    mate = Hash[mate_arry]
+    timestamp = Time.now.to_i
+    mate.each do |name, key|
+      key.each do |child, value|
+        output ["<%= @path %>", config[:scheme],dname,name,child].join("."), value, timestamp
+      end
+    end
+    ok
+  end
+end

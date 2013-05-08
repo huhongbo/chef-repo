@@ -1,0 +1,33 @@
+{
+	"handlers":{
+		"default":{
+			"type":"set",
+			"handlers":["gelf","keepalive","alarm"]
+		},
+		"event":{
+			"type": "pipe",
+			"command": "/etc/sensu/handlers/system_event_handler.rb"
+		},
+		"gelf": {
+		     "type": "pipe",
+		     "command": "/etc/sensu/handlers/gelf.rb"
+		},
+		"keepalive": {
+		     "type": "pipe",
+             "command": "/etc/sensu/handlers/handler_keepalive.rb"
+		},
+		"alarm": {
+			"type": "pipe",
+			"command": "/etc/sensu/handlers/alarm_sms.rb"
+		},
+		"graphite":{
+			"type":"amqp",
+			"exchange":{
+				"type":"topic",
+				"name":"graphite",
+				"passive":"true"
+				},
+			"mutator": "only_check_output"
+		}
+	}
+}

@@ -1,0 +1,125 @@
+#!/usr/bin/env ruby
+#
+# System hba Plugin
+# this plugin support aix5.3 aix6.1 hpux11.31
+# ===
+# code dn365
+# v 0.02
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+require 'rbconfig'
+
+$VERBOSE = nil
+class Hba < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}"
+
+  def sprintf_int(num)
+    num = 0 unless num
+    sprintf("%.01f", num)
+  end
+
+  def aix_hba
+    metrics_arry = []
+    oiiops,ooiops,oibytes,oobytes = [0,0,0,0]
+    fcslist = %x[lsdev -Ccadapter | grep fcs | awk '{ print \$1 }']
+    fcslist.each_line do |fcs|
+      fcsid = fcs.match(/\d+/)
+      fscsiname = "fscsi" + fcsid.to_s
+      fcsname = "fcs" + fcsid.to_s
+      fscsilist = %x[lsattr -El #{fscsiname} 2>/dev/null]
+      i = 0
+      f_value, n_value = Hash.new,Hash.new
+      2.times do
+        i += 1
+        fscsilist.each_line do |line|
+          if line.match(/attach\s+switch/) then
+            fcstat = `fcstat #{fcsname} | tail -5`
+            fcstat.each_line do |fline|
+              case fline
+              when /Input\sRequests:\s+(\d+)/
+                oiiops = $1.to_i
+              when /Output\sRequests:\s+(\d+)/
+                ooiops = $1.to_i
+              when /Input\sBytes:\s+(\d+)/
+                oibytes = $1.to_i
+              when /Output\sBytes:\s+(\d+)/
+                oobytes = $1.to_i
+              end
+            end
+            rx_iops = oiiops
+            tx_iops = ooiops
+            rx_bytes = oibytes
+            tx_bytes = oobytes
+            if i.eql?(1)
+              f_value = {:rx_iops=>rx_iops,:tx_iops=>tx_iops,:rx_bytes=>rx_bytes,:tx_bytes=>tx_bytes}
+            elsif i.eql?(2)
+              n_value = {:rx_iops=>rx_iops,:tx_iops=>tx_iops,:rx_bytes=>rx_bytes,:tx_bytes=>tx_bytes}
+            end
+          end
+        end
+        sleep 1
+      end
+      #puts f_value
+      #puts n_value
+
+      #puts f_value[:rx_iops]
+      ### calculate
+      if !n_value.empty? and !f_value.empty?
+        rx_iops = n_value[:rx_iops] - f_value[:rx_iops]
+        tx_iops = n_value[:tx_iops] - f_value[:tx_iops]
+        rx_bytes = (n_value[:rx_bytes] - f_value[:rx_bytes]).to_i / 1048576.to_f
+        tx_bytes = (n_value[:tx_bytes] - f_value[:tx_bytes]).to_i / 1048576.to_f
+        rx_iops = 0 unless rx_iops >= 0
+        tx_iops = 0 unless tx_iops >= 0
+        rx_bytes = 0 unless rx_bytes >= 0
+        tx_bytes = 0 unless tx_bytes >= 0
+        total_bytes = rx_bytes + tx_bytes
+        total_iops = rx_iops + tx_iops
+        metrics_arry << [fcsname,{:rmbs => sprintf_int(rx_bytes),:wmbs => sprintf_int(tx_bytes),:tmbs => sprintf_int(total_bytes),:iops => sprintf_int(total_iops),:riops => sprintf_int(rx_iops),:wiops => sprintf_int(tx_iops) }]
+      end
+    end
+    #puts $metrics_arry
+    return Hash[metrics_arry]
+  end
+
+  def hpux_hba
+    hba_cmd = %x[sar -H 1 2]
+    arry,metrics_arry = [],[]
+    hba_cmd.each_line {|i| arry << i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" or !i.chomp.split(" ")[1].include?("fcd") }
+    unless arry.empty?
+      arry.map do |i|
+        fcs_name = "fcs" + i.split(" ")[1].scan(/\d+/).join("").to_s
+        tmbs = i.split(" ")[7].to_i + i.split(" ")[8].to_i
+        metrics_arry << [fcs_name,{:rmbs => i.split(" ")[7],:wmbs => i.split(" ")[8],:tmbs => tmbs,:iops => i.split(" ")[4],:riops => i.split(" ")[5],:wiops => i.split(" ")[6] }]
+      end
+    end
+    return Hash[metrics_arry]
+  end
+
+  def run
+    #dname = "system"
+    dir_name = "hba"
+
+    uname = RbConfig::CONFIG['host_os']
+    metrics = {}
+    case uname
+    when /aix+(5.3|6.1)/
+      metrics = aix_hba
+    when /hpux11.31/
+      metrics = hpux_hba
+    end
+    timestamp = Time.now.to_i
+    metrics.each do |parent, children|
+      children.each do |child, value|
+      output ["<%= @path %>", config[:scheme], dir_name, parent, child].join("."), value, timestamp
+      end
+    end
+    ok
+  end
+end

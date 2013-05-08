@@ -1,0 +1,36 @@
+{
+	"checks": {
+		"filesystem_event": {
+			"handlers":["default"],
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -f<%= " -w #{@check_hash['filesystem_event']['warning']} -c #{@check_hash['filesystem_event']['critical']}" if @check_hash['filesystem_event'] %>",
+	      	"subscribers":["system"],
+	      	"notification":"Filesystem Full",
+	      	"interval": 60,
+	      	"refresh": 3600
+		},
+		"proc_event": {
+		 	"handlers":["default"],
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_infos.rb -p<%= " -w #{@check_hash['proc_event']['warning']} -c #{@check_hash['proc_event']['critical']}" if @check_hash['proc_event'] %>",
+	      	"subscribers":["system"],
+	      	"notification":"Proc High",
+	      	"interval": 300,
+	      	"refresh": 3600
+		},
+		"cpu": {
+			"handlers":["default"],
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_graph.rb --scheme :::name::: -s 900<%= @check_hash['cpu'] ? " -w #{@check_hash['cpu']['warning']} -c #{@check_hash['cpu']['critical']}" : " -w 90 -c 95" %> -n 'CPU avg usage' -S <%= node["sensu"]["check_graphite"]["randtime"] %>",
+	      	"subscribers":["system"],
+	      	"notification":"CPU AVG HIGH",
+	      	"interval": 900,
+	      	"refresh": 3600
+		},
+		"stdev_cpu": {
+			"handlers":["default"],
+			"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_graph.rb --scheme :::name::: -s 7200<%= @check_hash['stdev_cpu'] ? " -w #{@check_hash['stdev_cpu']['warning']} -c #{@check_hash['stdev_cpu']['critical']}" : " -w 8 -c 10" %> -r -n 'CPU stdev change' -S <%= node["sensu"]["check_graphite"]["randtime"] %>",
+			"subscribers":["system"],
+			"notification":"CPU Stdev HIGH",
+	      	"interval": 3600,
+	      	"refresh": 3600
+		}
+	}
+}

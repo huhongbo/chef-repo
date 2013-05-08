@@ -1,0 +1,98 @@
+#!/bin/sh
+
+#v 0.01 aix ntpxd shell
+# code dn365
+# chkconfig: 345 90 90
+# description: aix ntpd service
+
+prog="xntpd"
+
+start()
+{
+    echo "Starting $prog"
+	
+    startsrc -s $prog
+    RETVAL=$?
+    sleep 1
+	
+    echo "$prog startup success."
+    return $RETVAL
+}
+
+stop_ntp()
+{
+    echo "Stopping $prog"
+	
+    stopsrc -s $prog
+    RETVAL=$?  
+	 
+   	echo "$prog stop success."
+    return $RETVAL
+}
+
+status()
+{
+    #local pid
+
+    # First try "ps"
+   
+    status=$(ps exw | grep $prog | grep -v grep | awk '{ print $1 }')
+
+    pid=$status
+    if [ -n "$pid" ]; then
+    	echo $"${prog} (pid $pid) is running..."
+        return 0
+    fi
+	
+    echo $"${prog} is stopped"
+    return 2
+}
+
+# sometimes sensu components need a moment to shutdown, so
+# let's implement a waiting approach to restarts with a timeout
+restart_ntp()
+{
+    max_wait=10
+    count=0; success=0
+
+    stop_ntp
+    while [ $count -lt $max_wait ]; do
+		
+		status=$(ps exw | grep $prog | grep -v grep | awk '{ print $1 }')  
+        count=$((count + 1))
+        if [ "$status" != "" ]; then
+            sleep 1
+        else
+           success=1
+           break
+        fi
+    done
+
+    sleep 1
+    if [ $success = 1 ]; then
+        start
+    else
+       echo "Timed out waiting for $prog to stop"
+       return 1
+    fi
+}
+
+case "$1" in
+  'start')
+        start
+        ;;
+  'stop')
+        stop_ntp
+        ;;
+  'status')
+        status
+        ;;
+  'restart')
+        restart_ntp
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|status|restart}"
+        exit 2
+esac
+
+exit $?

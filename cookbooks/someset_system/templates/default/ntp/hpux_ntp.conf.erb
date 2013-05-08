@@ -1,0 +1,14 @@
+# Sample XNTP Configurations File
+#
+#  @(#)B.11.31_LR
+
+# NTP configuration file (ntp.conf)
+<% @def_ntp.each_with_index do |n,i| %>
+server <%= n %> version 3 <%= "perfer" if i.eql?(0) %>
+<% end %>
+
+#other conf
+<% @othconf.each do |conf| %>
+<%= conf %>
+<% end %>
+driftfile /etc/ntp.drift

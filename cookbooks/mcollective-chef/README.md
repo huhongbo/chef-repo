@@ -1,0 +1,4 @@
+Description
+===========
+mcollective install 
+

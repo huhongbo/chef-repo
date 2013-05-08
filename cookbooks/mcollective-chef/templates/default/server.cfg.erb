@@ -1,0 +1,31 @@
+topicprefix = /topic/
+libdir = <%= node["mcollective"]["libdir"] %>
+logfile = /var/log/mcollective.log
+#loglevel = info
+loglevel = debug
+daemonize = 1
+keeplogs = 1
+identity = <%= node.hostname %>
+registerinterval = 300
+
+# Plugins
+securityprovider = psk
+plugin.psk = <%= node["mcollective"]["psk"] %>
+
+connector = stomp
+plugin.stomp.host = <%= node["mcollective"]["stomp"]["host"] %>
+plugin.stomp.port = <%= node["mcollective"]["stomp"]["port"] %>
+plugin.stomp.user = <%= node["mcollective"]["stomp"]["user"] %>
+plugin.stomp.password = <%= node["mcollective"]["stomp"]["password"] %>
+
+# Facts
+
+#factsource = opscodeohai
+#fact_cache_time = 300
+
+factsource = yaml
+plugin.yaml = /etc/mcollective/facts.yaml
+
+
+classesfile = /etc/mcollective/chefnode.txt
+

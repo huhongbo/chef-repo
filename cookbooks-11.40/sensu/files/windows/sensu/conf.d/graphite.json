@@ -1,0 +1,20 @@
+{
+	"checks": {
+		"system": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_sysinfo.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60,
+			"standalone":true
+			},
+		"network": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_network.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60,
+			"standalone":true
+			}
+	}
+}

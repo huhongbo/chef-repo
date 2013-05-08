@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+#
+# code dn365
+# v 0.01
+#
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/check/cli'
+require 'sigar'
+
+class CheckProc < Sensu::Plugin::Check::CLI
+  option :proc,
+    :short => '-p',
+    :long => '--proc',
+    :description => 'Mix proc warring'
+  option :critical,
+    :short => '-c',
+    :long => '--critical=VALUE',
+    :description => 'Critical threshold Procent 0 -- 100',
+    :default => 95
+  option :warning,
+    :short => '-w',
+    :long => '--warning=VALUE',
+    :description => 'Warning threshold Procent 0 -- 100',
+    :default => 90
+  option :help,
+    :short => "-h",
+    :long => "--help",
+    :description => "Check usage",
+    :on => :tail,
+    :boolean => true,
+    :show_options => true,
+    :exit => 0
+    
+    def sprintf_int(num)
+      return num.nil? ? 0 : sprintf("%.0f", num.to_i * 100)
+    end
+    
+    def user_max_count_value(arry=[])
+      temp = arry.group_by {|i| i }.map {|k,v| [k, v.length]}
+      name = temp[0][0]
+      value = temp[0][1]
+      return name, value
+    end
+    
+    
+    def user_proc(critical,warning)
+      uname = %x[uname]
+      case uname
+      when /HP-UX/ 
+        user = %x[UNIX95=1 ps -Ax -o user| grep -v USER]
+        max = %x[sysdef|grep nproc].split(" ")[1].to_i
+      when /AIX/
+        user = %x[ps -eo user| grep -v USER]
+        max = %x[lsattr -E -l sys0|grep maxuproc].split(" ")[1].to_i
+      when /Linux/
+        user = %x[ps -eo user | grep -v USER]
+        issue = `cat /etc/issue`
+        case issue
+        when /Ubuntu/
+          max_shell = `echo | ulimit -a`
+          temp_arry = []
+          max_shell.split("\n").map{|i| temp_arry << i.split(" ") }
+          max = Hash[temp_arry]['process']
+        else
+          max = %x(echo `ulimit -u`).chomp
+        end   
+       end
+
+       user_arry = []
+       user.each_line {|u| user_arry << u.chomp }
+
+       user_name,value = user_max_count_value(user_arry)
+       p_value = sprintf_int(value.to_f / max.to_i)
+      
+       message = "#{user_name} Proc count #{value}; Proc limit #{max}"
+
+       if p_value.to_i > critical
+         critical msg = message
+       elsif p_value.to_i > warning
+         warning msg = message
+       else
+         ok msg = message
+       end
+     end
+    
+    def run
+      crit_value = config[:critical].to_i
+      warn_value = config[:warning].to_i
+     if config[:proc]
+       user_proc(crit_value,warn_value)
+     else
+       unknown msg = "Not find, please -h"
+     end    
+     
+    end
+
+end
