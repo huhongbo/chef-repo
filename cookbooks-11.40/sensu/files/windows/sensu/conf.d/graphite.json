@@ -4,7 +4,7 @@
 			"type":"metric",
 			"handlers":["graphite"],
 			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_sysinfo.rb --scheme :::name:::",
-			"subscribers":["system"],
+			"subscribers":["msi_system"],
 			"interval":60,
 			"standalone":true
 			},
@@ -12,7 +12,7 @@
 			"type":"metric",
 			"handlers":["graphite"],
 			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_network.rb --scheme :::name:::",
-			"subscribers":["system"],
+			"subscribers":["msi_system"],
 			"interval":60,
 			"standalone":true
 			}

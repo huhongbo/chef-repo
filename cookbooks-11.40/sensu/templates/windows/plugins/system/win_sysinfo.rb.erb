@@ -50,7 +50,7 @@ class SystemInfo < Sensu::Plugin::Metric::CLI::Graphite
     timestamp = Time.now.to_i
     metrics = {
       :cpu => {
-        :user => win_cpu
+        :total => win_cpu
       },
       :memory => {
         :mem_used => win_mem

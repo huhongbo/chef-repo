@@ -36,8 +36,12 @@ client = {
   "client"=> {
     "name"=> node.hostname,
     "address"=> node.ipaddress,
-    "safe_mode"=>true,
-    "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
+    "safe_mode"=>false,
+    if node.platform.eql?("windows")
+      "subscriptions"=> ["msi_system"] + node["sensu"]["tags"]["sources"]
+    else
+      "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
+    end
   }
 }
 file "#{node["sensu"]["conf.d"]}/client.json" do
