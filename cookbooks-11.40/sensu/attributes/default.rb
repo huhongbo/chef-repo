@@ -1,6 +1,6 @@
 require 'rbconfig'
 
-default["graphite"]["url"] = "graphite.zj.chinamobile.com"
+default["graphite"]["url"] = "graphite1.dntmon.com"
 default["graphite"]["ser_ip"] = "10.70.181.217"
 
 
@@ -25,7 +25,7 @@ default["senus"]["server"]["user"] = "dntmon"
 default["senus"]["server"]["group"] = "dntmon"
 
 # sensu server handler warn data insert db config
-default["sensu"]["warn_db"]["host"] = "10.211.55.16"
+default["sensu"]["warn_db"]["host"] = "127.0.0.1"
 default["sensu"]["warn_db"]["user"] = "dntmon"
 default["sensu"]["warn_db"]["password"] = "dPassw0rd"
 
@@ -47,6 +47,37 @@ default["sensu"]["system_script"] = [
                                           "disk_tps.rb",
                                           "hba.rb"
                                         ]
+
+
+default["sensu"]["default_value"] = {
+  default: {
+    cpu: {
+      warning: 95,
+      critical: 100
+    },
+    stdev_cpu: {
+      warning: 10,
+      critical: 12
+    },
+    filesystem_event: {
+      warning: 90,
+      critical: 95
+    },
+    memory_event: {
+      warning: 90,
+      critical: 95
+    },
+    swap_event: {
+      warning: 95,
+      critical: 98
+    },
+    proc_event: {
+      warning: 90,
+      critical: 95
+    }
+  },
+  check_source_list: ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
+} 
 
 
 

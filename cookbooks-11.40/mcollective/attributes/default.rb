@@ -2,7 +2,6 @@
 require 'rbconfig'
 
 # stomp config
-#default["mcollective"]["stomp"]["host"] = "chefserver-ubuntu"
 default["chef"]["server"]["hostname"] = "chef-server"
 default["mcollective"]["stomp"]["host"] = node["chef"]["server"]["hostname"]
 default["mcollective"]["stomp"]["port"] = "61613"
@@ -12,7 +11,7 @@ default["mcollective"]["stomp"]["password"] = "Passw0rd"
 default["mcollective"]["version"] = "2.2.3"
 
 # mcollective plugins path
-default["mcollective"]["config_dir"] = "/etc/mcollective/"
+default["mcollective"]["config_dir"] = "/etc/mcollective"
 default["mcollective"]["libdir"] = "#{node["mcollective"]["config_dir"]}/mcollective-plugins"
 
 default["mcollective"]["log_dir"] = "/var/log"
