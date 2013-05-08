@@ -15,7 +15,7 @@ end
 
 content = File.read(hosts_file)
 
-unless content.include?("#{node["graphite"]["url"]}")
+unless content.include?("#{node["chef"]["server"]["ip"]} #{node["chef"]["server"]["hostname"]}")
   hosts_stat = File.open(hosts_file,"w")
   hosts_stat.puts(content)
   hosts_stat.puts("#{node["chef"]["server"]["ip"]} #{node["chef"]["server"]["hostname"]}")

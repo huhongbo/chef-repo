@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # code dn365
 # v 0.1
-# install chef client v 11.04
+# install chef client v 11.40
 
 require "optparse"
 require 'net/http'

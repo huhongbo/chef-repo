@@ -34,6 +34,10 @@ class SystemInfo < Sensu::Plugin::Metric::CLI::Graphite
     mem_avai = memprocs.AvailableMBytes.to_i
     mem_total = 0
     WMI::Win32_PhysicalMemory.find(:all).each{|mp| mem_total += (mp.Capacity.to_i / (1024*1024)) }
+    if mem_total.eql?(0)
+      system = WMI::Win32_ComputerSystem.find(:first)
+      mem_total = system.TotalPhysicalMemory.to_f /  (1024*1024)
+    end
     mem_used = 100 - (mem_avai.to_f / mem_total) * 100
     mem = sprintf("%.1f",mem_used)
     return mem
@@ -54,7 +58,7 @@ class SystemInfo < Sensu::Plugin::Metric::CLI::Graphite
     }
     metrics.each do |parent, children|
       children.each do |child, value|
-        output [config[:scheme], parent, child].join("."), value, timestamp
+        output ["<%= @path %>",config[:scheme], parent, child].join("."), value, timestamp
       end
     end
     ok

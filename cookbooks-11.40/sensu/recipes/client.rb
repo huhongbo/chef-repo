@@ -36,6 +36,7 @@ client = {
   "client"=> {
     "name"=> node.hostname,
     "address"=> node.ipaddress,
+    "safe_mode"=>true,
     "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
   }
 }
@@ -55,7 +56,24 @@ cookbook_file "#{node["sensu"]["conf.d"]}/graphite.json" do
   notifies :run, "execute[restart sensu-client]", :delayed
 end
 
-check_data = data_bag_item('sensu','checks').reject{|k,v| ["id"].include?(k)}
+
+begin
+ data_bag('sensu')
+ bag_sensu = data_bag('sensu')
+rescue
+  bag_sensu = []
+end
+
+if bag_sensu.to_s.include?("checks")
+  check_data = data_bag_item('sensu','checks')
+else
+ check_data = node["sensu"]["default_value"]
+end
+
+#if !data_bag('sensu').empty? and !data_bag_item('sensu','checks').empty?
+#  check_data = data_bag_item('sensu','checks').reject{|k,v| ["id"].include?(k)}
+#end
+
 check_source = check_data['check_source_list']
 check_array = []
 check_source.each do |source|
@@ -78,7 +96,8 @@ remote_directory node["sensu"]["plugins"] do
 end
 
 dom_conf = Hash.new
-if data_bag('sensu').to_s.include?("domain")
+
+if bag_sensu.to_s.include?("domain")
   dom_conf = data_bag_item('sensu','domain')
 end
 if dom_conf[node.hostname]
