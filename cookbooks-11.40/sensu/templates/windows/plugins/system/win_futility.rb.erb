@@ -1,0 +1,20 @@
+# system default plugin
+# futility script to windows
+# code dn365
+# v0.01
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+
+$VERBOSE = nil
+class WinFutility < Sensu::Plugin::Metric::CLI::Graphite
+
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to .$parent.$child",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}"
+    def run
+      ok
+    end
+end
