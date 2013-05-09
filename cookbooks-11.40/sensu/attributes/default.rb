@@ -95,5 +95,5 @@ when "windows"
   default["sensu"]["windows"]["winsw_dir"] = "C:/opscode/chef/bin"
   default["sensu"]["windows"]["sensu_exe"] = "sensu-client.exe"
   
-  default["sensu"]["system_script"] = ["win_sysinfo.rb","win_network.rb"]
+  default["sensu"]["system_script"] = ["win_sysinfo.rb","win_network.rb","win_futility.rb"]
 end

@@ -4,17 +4,45 @@
 			"type":"metric",
 			"handlers":["graphite"],
 			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_sysinfo.rb --scheme :::name:::",
-			"subscribers":["msi_system"],
+			"subscribers":["system"],
 			"interval":60,
 			"standalone":true
-			},
+		},
 		"network": {
 			"type":"metric",
 			"handlers":["graphite"],
 			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_network.rb --scheme :::name:::",
-			"subscribers":["msi_system"],
+			"subscribers":["system"],
 			"interval":60,
 			"standalone":true
-			}
+		},
+		"load": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_futility.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60
+		},
+		"disk_tps": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_futility.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60
+		},
+		"hba": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_futility.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60
+		},
+		"user_cpu": {
+			"type": "metric",
+			"handlers": ["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_futility.rb --scheme :::name:::",
+			"subscribers": ["system"],
+			"interval": 60
+		}
 	}
 }
