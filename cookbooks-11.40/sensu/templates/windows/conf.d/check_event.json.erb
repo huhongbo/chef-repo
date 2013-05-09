@@ -31,6 +31,27 @@
 			"notification":"CPU Stdev HIGH",
 	      	"interval": 3600,
 	      	"refresh": 3600
+		},
+		"memory_event": {
+			"handlers":["default"],
+			"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_futility.rb",
+			"subscribers":["system"],
+			"notification":"Memory High",
+	      	"interval": 60,
+	      	"refresh": 3600
+		},
+		"swap_event": {
+		 	"handlers":["default"],
+	      	"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_futility.rb",
+	      	"subscribers":["system"],
+	      	"notification":"Swap High",
+	      	"interval": 60,
+	      	"refresh": 3600
+		},
+		"del_log": {
+			"command": "C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/check_futility.rb",
+			"standalone": true,
+	      	"interval": 600
 		}
 	}
 }
