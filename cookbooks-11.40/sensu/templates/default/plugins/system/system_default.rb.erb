@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # system default plugin
-# fix cup idle value
+# fix cpu idle value
 # code dn365
 # v0.03
 
@@ -74,9 +74,9 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_user = sar_value[1]
       cpu_sys = sar_value[2]
       cpu_wait = sar_value[3]
-      cup_idle = sar_value[4]
-      cpu_total_value = 100 - cup_idle
-      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01,3)
+      cpu_idle = sar_value[4]
+      cpu_total_value = 100 - cpu_idle
+      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_f %>,0.01,3)
       
     else
       cpu_sys, cpu_total, cpu_user, cpu_wait = cpu_quaitity_total
@@ -88,9 +88,9 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_wait = sprintf_int(cpu_wait / cpu_total.to_f)  
         
       cpu_s = cpu_user.to_i + cpu_wait.to_i  + cpu_sys.to_i
-      cup_idle = 100 - cpu_s
+      cpu_idle = 100 - cpu_s
       cpu_total_value = cpu_s
-      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01,3)
+      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_f %>,0.01,3)
     end
     
     memory_used = mem.used.to_f / mem.total
@@ -102,7 +102,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       :cpu => {
         :user => cpu_user,
         :sys =>  cpu_sys,
-        :idle => cup_idle,
+        :idle => cpu_idle,
         :wait => cpu_wait,
         :total => cpu_total_value,
         :total_c => cpu_total_tp
