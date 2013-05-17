@@ -90,7 +90,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       cpu_s = cpu_user.to_i + cpu_wait.to_i  + cpu_sys.to_i
       cup_idle = 100 - cpu_s
       cpu_total_value = cpu_s
-      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_i %>,0.01,3)
+      cpu_total_tp = sprintf_int(cpu_total_value * <%= @cpu_tp.to_f %>,0.01,3)
     end
     
     memory_used = mem.used.to_f / mem.total
