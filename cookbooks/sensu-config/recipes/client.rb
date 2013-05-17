@@ -209,7 +209,7 @@ end
 dom_conf = data_bag_item('sensu','domain')
 if dom_conf[node.hostname]
   domain_path = dom_conf[node.hostname]["ndom"] + "." + dom_conf[node.hostname]["nsubdom"]
-  cpu_c = dom_conf[node.hostname]["tpcc"].to_i.to_f / 1000000
+  cpu_c = dom_conf[node.hostname]["tpcc"].to_f / 1000000
 else
   domain_path = node["node"]["app"]
   cpu_c = 0
