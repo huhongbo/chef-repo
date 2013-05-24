@@ -23,7 +23,7 @@ unless content.include?("#{node["graphite"]["url"]}")
   hosts_stat.close
 end
 
-if !node.platform.include?("windows") or !node.platform.include?("aix") or !node.platform.include?("hpux")
+unless node.platform.include?("windows") or node.platform.include?("aix") or node.platform.include?("hpux")
   gem_package "sensu" do
     options "--no-ri --no-rdoc"
     version "0.9.12"
