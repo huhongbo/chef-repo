@@ -15,7 +15,6 @@ when "debian", "fedora", "suse", "aix", "hpux"
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
-    user	"root"
     if platform?("aix") or platform?("hpux")
       provider Chef::Provider::Cron::Solaris
     end
