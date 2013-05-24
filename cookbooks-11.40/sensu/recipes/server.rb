@@ -132,28 +132,28 @@ end
 
 
 execute "restart sensu-server" do
-  command "sv restart sensu-server"
+  command "/opt/chef-server/bin/chef-server-ctl restart sensu-server"
   action :nothing
 end
 
 execute "restart sensu-client" do
-  command "sv restart sensu-client"
+  command "/opt/chef-server/bin/chef-server-ctl restart sensu-client"
   action :nothing
 end
 
 execute "start sensu-server" do
-  command "sv start sensu-server"
+  command "/opt/chef-server/bin/chef-server-ctl start sensu-server"
   action :run
 end
 execute "start sensu-client" do
-  command "sv start sensu-client"
+  command "/opt/chef-server/bin/chef-server-ctl start sensu-client"
   action :run
 end
 execute "start sensu-api" do
-  command "sv start sensu-api"
+  command "/opt/chef-server/bin/chef-server-ctl start sensu-api"
   action :run
 end
 execute "start sensu-dashboard" do
-  command "sv start sensu-dashboard"
+  command "/opt/chef-server/bin/chef-server-ctl start sensu-dashboard"
   action :run
 end
