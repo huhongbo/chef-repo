@@ -22,8 +22,8 @@ default["chef_client"]["validation_client_name"] = "chef-validator"
 
 
 default["chef_client"]["cron"] = {
-  "minute" => "0",
-  "hour" => "*/4",
+  "minute" => "15",
+  "hour" => "*",
   "path" => nil,
   "environment_variables" => nil,
   "log_file" => "/dev/null",
