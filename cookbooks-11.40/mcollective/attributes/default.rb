@@ -2,7 +2,7 @@
 require 'rbconfig'
 
 # stomp config
-default["chef"]["server"]["hostname"] = "chef-server"
+default["chef"]["server"]["hostname"] = "pc-monsvc"
 default["mcollective"]["stomp"]["host"] = node["chef"]["server"]["hostname"]
 default["mcollective"]["stomp"]["port"] = "61613"
 default["mcollective"]["stomp"]["user"] = "mcollective"

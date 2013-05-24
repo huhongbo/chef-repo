@@ -1,7 +1,7 @@
 require 'rbconfig'
 
 default["graphite"]["url"] = "graphite1.dntmon.com"
-default["graphite"]["ser_ip"] = "10.70.181.217"
+default["graphite"]["ser_ip"] = "10.70.181.210"
 
 
 
@@ -16,7 +16,7 @@ default["sensu"]["system"] = "#{node["sensu"]["plugins"]}/system"
 
 # rabbitmq ipaddress and port
 
-default["sensu"]["config"]["rabbitmq_ip"] = "10.211.55.16"
+default["sensu"]["config"]["rabbitmq_ip"] = "10.70.181.210"
 default["sensu"]["config"]["rabbitmq_prot"] = 5672
 default["sensu"]["config"]["rabbitmq_user"] = "sensu"
 default["sensu"]["config"]["rabbitmq_password"] = "Passw0rd"
