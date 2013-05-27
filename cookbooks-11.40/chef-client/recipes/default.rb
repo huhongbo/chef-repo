@@ -37,18 +37,6 @@ else
   end
   hosts_stat.close
 end
-# update gem sources url
-gem_sour = system("gem sources -l")
-if gem_sour.include("pc-mon02")
-  execute "del_gem_sources" do
-    command "gem sources -r http://pc-mon02:9292"
-    action :run
-  end
-  execute "add_gem_sources" do
-    command "gem sources -a http://#{["chef"]["server"]["hostname"]}:9292"
-    action :run
-  end
-end
 
 
 # upgrading chef version
