@@ -15,12 +15,41 @@ end
 
 content = File.read(hosts_file)
 
-unless content.include?("#{node["chef"]["server"]["ip"]} #{node["chef"]["server"]["hostname"]}")
+unless content.include?("#{node["chef"]["server"]["hostname"]}")
   hosts_stat = File.open(hosts_file,"w")
   hosts_stat.puts(content)
   hosts_stat.puts("#{node["chef"]["server"]["ip"]} #{node["chef"]["server"]["hostname"]}")
   hosts_stat.close
+else
+  a_array = []
+  content.each_line do |i|
+    if i.include?(node["chef"]["server"]["hostname"])
+      name = i.split(" ")[-1]
+      new_string = "#{node["chef"]["server"]["ip"]} #{name}"
+      a_array << new_string
+    else
+      a_array << i
+    end
+  end
+  hosts_stat = File.open(hosts_file,"w")
+  a_array.each do |cc|
+    hosts_stat.puts(cc)
+  end
+  hosts_stat.close
 end
+# update gem sources url
+gem_sour = system("gem sources -l")
+if gem_sour.include("pc-mon02")
+  execute "del_gem_sources" do
+    command "gem sources -r http://pc-mon02:9292"
+    action :run
+  end
+  execute "add_gem_sources" do
+    command "gem sources -a http://#{["chef"]["server"]["hostname"]}:9292"
+    action :run
+  end
+end
+
 
 # upgrading chef version
 gem_package "chef" do
