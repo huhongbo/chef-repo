@@ -52,7 +52,7 @@ ruby_block "gem sources" do
       end
     end
   end
-  action :action
+  action :create
 end
 
 
