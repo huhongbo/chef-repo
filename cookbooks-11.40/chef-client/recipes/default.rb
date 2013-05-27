@@ -39,7 +39,7 @@ else
 end
 # update gem sources url
 gem_sour = system("gem sources -l")
-if gem_sour.include("pc-mon02")
+if gem_sour.include?("pc-mon02")
   execute "del_gem_sources" do
     command "gem sources -r http://pc-mon02:9292"
     action :run
