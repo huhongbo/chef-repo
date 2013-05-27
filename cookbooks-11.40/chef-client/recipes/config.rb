@@ -23,7 +23,7 @@ end
 template "#{node["chef_client"]["conf_dir"]}/client.rb" do
   source "client.rb.erb"
   variables(
-    :chef_server_url => node["chef"]["server"]["ip"],
+    :chef_server_url => node["chef_client"]["server_url"],
     :validation_client_name => node["chef_client"]["validation_client_name"],
     :file_backup_path => node["chef_client"]["backup_path"],
     :file_cache_path => node["chef_client"]["cache_path"],
