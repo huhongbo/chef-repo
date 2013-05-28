@@ -38,9 +38,6 @@ else
   hosts_stat.close
 end
 
-
-
-
 # upgrading chef version
 gem_package "chef" do
   action :install
