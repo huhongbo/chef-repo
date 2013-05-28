@@ -39,10 +39,16 @@ else
   hosts_stat.close
 end
 
-unless node.platform.include?("windows") or node.platform.include?("aix") or node.platform.include?("hpux")
+unless node.platform.include?("windows")
+  
   gem_package "sensu" do
+    version "0.9.7"
+    action :uninstall
+  end
+  
+  gem_package "sensu-client" do
     options "--no-ri --no-rdoc"
-    version "0.9.12"
+    version "0.9.13"
     action :install
   end
 
@@ -51,11 +57,11 @@ unless node.platform.include?("windows") or node.platform.include?("aix") or nod
     #version ""
     action :install
   end
-  gem_package "sigar" do
-    options "--no-ri --no-rdoc"
+  #gem_package "sigar" do
+  #  options "--no-ri --no-rdoc"
     #version ""
-    action :install
-  end
+  #  action :install
+  #end
 end
 
 
