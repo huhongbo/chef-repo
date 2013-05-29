@@ -57,11 +57,10 @@ unless node.platform.include?("windows")
     #version ""
     action :install
   end
-  #gem_package "sigar" do
-  #  options "--no-ri --no-rdoc"
-    #version ""
-  #  action :install
-  #end
+  gem_package "sigar" do
+    options "--no-ri --no-rdoc --platform #{node["sensu"]["gem"]["platform"]}"
+    action :install
+  end
 end
 
 

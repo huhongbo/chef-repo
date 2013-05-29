@@ -81,6 +81,28 @@ default["sensu"]["default_value"] = {
 } 
 
 
+case os
+when "aix"
+  if platform_version =~ /5/
+    default["sensu"]["gem"]["platform"] = "powerpc-aix-5"
+  elsif platform_version =~ /6/
+    default["sensu"]["gem"]["platform"] = "powerpc-aix-6"
+  else
+    default["sensu"]["gem"]["platform"] = nil
+  end
+when "hpux"
+  if platform_version =~ /11.31/ and cpu["0"]["model"] =~ /Itanium/
+    default["sensu"]["gem"]["platform"] = "ia64-hpux-11"
+  elsif platform_version =~ /11.11/ and cpu["0"]["model"] =~ /PA RISC/
+    default["sensu"]["gem"]["platform"] = "hppa2.0w-hpux-11"
+  else
+    default["sensu"]["gem"]["platform"] = nil
+  end
+else
+  default["sensu"]["gem"]["platform"] = nil
+end
+
+
 
 case node['platform_family']
 when "windows"
