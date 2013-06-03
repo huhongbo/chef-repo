@@ -42,7 +42,6 @@ end
 unless node.platform.include?("windows")
   
   gem_package "sensu" do
-    version "0.9.7"
     action :remove
   end
   
