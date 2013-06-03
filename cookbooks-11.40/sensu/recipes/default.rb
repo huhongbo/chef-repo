@@ -54,7 +54,7 @@ unless node.platform.include?("windows")
 
   gem_package "sensu-plugin" do
     options "--no-ri --no-rdoc"
-    #version ""
+    version "0.1.7"
     action :install
   end
   gem_package "sigar" do
