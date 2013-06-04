@@ -77,7 +77,7 @@ default["sensu"]["default_value"] = {
       :critical => 95
     }
   },
-  check_source_list: ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
+  :check_source_list => ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
 } 
 
 
