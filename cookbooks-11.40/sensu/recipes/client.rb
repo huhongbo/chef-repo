@@ -32,10 +32,16 @@ file "#{node["sensu"]["path"]}/config.json" do
 end
 
 # client.rb file
+
+ip_address = node.ipaddress
+unless ip_address
+ ip_address = `ping -c1 jfrddw01`.to_s.scan(/\(([^\(]*)\)/).flatten[0]
+end
+
 client = {
   "client"=> {
     "name"=> node.hostname,
-    "address"=> node.ipaddress,
+    "address"=> ip_address,
     "safe_mode"=>false,
     "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
   }
