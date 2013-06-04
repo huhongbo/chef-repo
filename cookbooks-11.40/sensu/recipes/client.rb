@@ -35,7 +35,11 @@ end
 
 ip_address = node["ipaddress"] ? node.ipaddress : nil
 unless ip_address
- ip_address = %x[ping -c1 #{node.hostname}].to_s.scan(/\(([^\(]*)\)/).flatten[0]
+  if node.platform.include?("hpux")
+    ip_address = %x[ping #{node.hostname} -n 1].to_s.split("from")[-1].split(":")[0]
+  else
+    ip_address = %x[ping -c1 #{node.hostname}].to_s.scan(/\(([^\(]*)\)/).flatten[0]
+  end
 end
 
 client = {
