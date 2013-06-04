@@ -33,9 +33,9 @@ end
 
 # client.rb file
 
-ip_address = node.ipaddress
+ip_address = node["ipaddress"] ? node.ipaddress : nil
 unless ip_address
- ip_address = `ping -c1 jfrddw01`.to_s.scan(/\(([^\(]*)\)/).flatten[0]
+ ip_address = system("ping -c1 jfrddw01").to_s.scan(/\(([^\(]*)\)/).flatten[0]
 end
 
 client = {
