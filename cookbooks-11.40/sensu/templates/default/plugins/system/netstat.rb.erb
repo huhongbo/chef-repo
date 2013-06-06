@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# netstat -a tcp wc -l [LISTEN TIME_WAIT ESTABLISHED FIN_WAIT SENT RECEIVED]
+# netstat -a tcp wc -l [LISTEN TIME_WAIT ESTABLISHED FIN_WAIT Recv-Q, Send-Q]
 # 
 # code dn365
 # v0.01
@@ -21,11 +21,13 @@ class NetstatGraphite < Sensu::Plugin::Metric::CLI::Graphite
     def run
       #sigar = Sigar.new
       #sys_info = sigar.sys_info.name.downcase
-      stat_total,listen,time_wait,established,fin_wait,syn_sent,syn_received = 0,0,0,0,0,0,0
+      stat_total,listen,time_wait,established,fin_wait,sent_q,received_q = 0,0,0,0,0,0,0
       
-      netstat_cmd = %x[netstat -a|grep tcp].to_s.split("\n")
+      netstat_cmd = %x[netstat -an|grep tcp].to_s.split("\n")
       timestamp = Time.now.to_i
       netstat_cmd.each do |net|
+        received_q += net.split(" ")[1].to_i
+        sent_q += net.split(" ")[2].to_i
         case net.split(" ")[-1]
         when /LISTEN/
           listen += 1
@@ -35,10 +37,6 @@ class NetstatGraphite < Sensu::Plugin::Metric::CLI::Graphite
           established += 1
         when /FIN_WAIT/
           fin_wait += 1
-        when /SENT/
-          syn_sent +=1
-        when /RECEIVED/
-          syn_received += 1
         end
       end
       stat_total = netstat_cmd.size
@@ -49,8 +47,8 @@ class NetstatGraphite < Sensu::Plugin::Metric::CLI::Graphite
           :time_wait => time_wait,
           :established => established,
           :fin_wait => fin_wait,
-          :syn_sent => syn_sent,
-          :syn_received => syn_received
+          :sent_q => sent_q,
+          :received_q => received_q
         }
       }
       metrics.each do |parent, children|
