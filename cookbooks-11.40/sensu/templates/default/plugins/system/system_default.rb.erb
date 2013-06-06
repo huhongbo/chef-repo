@@ -95,6 +95,7 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
     
     memory_used = mem.used.to_f / mem.total
     memory_sys = (mem.used - mem.actual_used).to_f / mem.total
+    memory_actual = mem.actual_used.to_f / mem.total
     swap_used = swap.used.to_f / swap.total
     
     timestamp = Time.now.to_i
@@ -110,7 +111,8 @@ class SystemDefaultGraphite < Sensu::Plugin::Metric::CLI::Graphite
       :memory => {
         :mem_used => sprintf_int(memory_used),
         :mem_sys => sprintf_int(memory_sys),
-        :swap_used => sprintf_int(swap_used)
+        :swap_used => sprintf_int(swap_used),
+        :mem_actual => sprintf_int(memory_actual)
       }
     }
         
