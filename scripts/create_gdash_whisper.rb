@@ -14,10 +14,10 @@ gdash_path = "/opt/chef-server/embedded/service/gdash/graph_templates"
 whisp_data = RestClient.get(whisp_sources)
 
 def file_write(title,body)
-    file =  File.open("#{title}","w")
-    file.write("#{body}")
-    file.close
-    print "#{title} create success. \n"
+  file =  File.open("#{title}","w")
+  file.write("#{body}")
+  file.close
+  print "#{title} create success. \n"
 end
 
 def mk_dir(dir_name)
@@ -59,26 +59,40 @@ gdash_sour.each do |dom,v|
     
     cpu_total = file_write("#{host_path}/cpu_total_used.graph", "title \"Combined CPU Total Used Usage\"\nvtitle \"percent\"\narea :none\nymax 100\nymin 0\ndescription \"The combined CPU Total usage for all Exim Anti Spam servers\"\nfield :total_used, :scale => 1, :color => \"red\", :alias => \"Cpu Total Uesd\", :data => \"*.*.#{name}.cpu.total\"\n")
     
-    memory = file_write("#{host_path}/memory.graph","title \"Combined Memory Usage\"\nvtitle \"precent\"\nymax 100\nymin 0\narea :none\nfield :sys, :scale => 1,:color => \"#1d953f\", :alias => \"Memory Sys\", :data  => \"*.*.#{name}.memory.mem_sys\"\nfield :use, :scale => 1,:color => \"#bed742\",:alias => \"Memory used\", :data  => \"*.*.#{name}.memory.mem_used\"\nfield :swap, :scale => 1,:color => \"#d71345\",:alias => \"Swap Used\",:data  => \"*.*.#{name}.memory.swap_used\"\n")
+    memory = file_write("#{host_path}/memory.graph","title \"Combined Memory Usage\"\nvtitle \"precent\"\nymax 100\nymin 0\narea :none\nfield :sys, :scale => 1,:color => \"#1d953f\", :alias => \"Memory Sys\", :data  => \"*.*.#{name}.memory.mem_sys\"\nfield :use, :scale => 1,:color => \"#bed742\",:alias => \"Memory used\", :data  => \"*.*.#{name}.memory.mem_used\"\nfield :swap, :scale => 1,:color => \"#d71345\",:alias => \"Swap Used\",:data  => \"*.*.#{name}.memory.swap_used\"\nfield :actual, :scale => 1, :alias => \"Actual Used\",:data  => \"*.*.#{name}.memory.mem_actual\"\n")
     
     load = file_write("#{host_path}/load.graph", "title \"Combined Load\"\nvtitle \"int\"\narea :first\nfield :loadone, :scale => 1,:color => \"green\",:alias => \"Load One\",:data  => \"*.*.#{name}.load.onemonute\"\nfield :loadfive, :scale => 1,:color => \"#585eaa\", :alias => \"Load Five\", :data  => \"*.*.#{name}.load.fivemonute\"\nfield :loadfifteen, :scale => 1,:color => \"#faa755\",:alias => \"Load Fifteen\",:data  => \"*.*.#{name}.load.fifteenmonute\"\n")
+    
+    netstat = file_write("#{host_path}/netstat.graph","title \"Combined Netstat\"\nvtitle \"int\"\narea :none\nfield :stotal, :scale => 1, :alias => \"TCP total\",:data  => \"*.*.#{name}.netstat.total\"\nfield :time_wait, :scale => 1, :alias => \"TCP time_wait\",:data  => \"*.*.#{name}.netstat.time_wait\"\nfield :listen, :scale => 1, :alias => \"TCP listen\",:data  => \"*.*.#{name}.netstat.listen\"\nfield :fin_wait, :scale => 1, :alias => \"TCP fin_wait\",:data  => \"*.*.#{name}.netstat.fin_wait\"\nfield :established, :scale => 1, :alias => \"TCP established\",:data  => \"*.*.#{name}.netstat.established\"\n")
+    
+    netstat_q = file_write("#{host_path}/netstat_q.graph","title \"Combined Netstat send and received\"\nvtitle \"int\"\narea :none\nfield :sent_q, :scale => 1, :alias => \"TCP sent_q\",:data  => \"*.*.#{name}.netstat.sent_q\"\nfield :received_q, :scale => 1, :alias => \"TCP received_q\",:data  => \"*.*.#{name}.netstat.received_q\"\n")
 
     io = file_write("#{host_path}/disk_io.graph","title \"Combined Disk IO\"\nvtitle \"int\"\narea :none\nfield :disks, :scale => 1,:color => \"blue\",:alias => \"Disk Quantity\",:data  => \"*.*.#{name}.disk.disk_quantity\"\nfield :io, :scale => 1, :color => \"green\", :alias => \"Disk IO\", :data  => \"*.*.#{name}.disk.tps\"\n")
     hba_a = []
+    infter_name_a = []
     vv.each do |s|
       tmp_s = s.split(".")
       case tmp_s[1]
       when /interface/
         infter_name = tmp_s[2]
-        interface = file_write("#{host_path}/interface-#{infter_name}.graph","title \"Combined Network #{infter_name} Usage\"\nvtitle \"Byte\"\narea :none\nfield :networkup, :color => \"green\",:alias => \"Net Out\",:data  => \"*.*.#{name}.interface.#{infter_name}.tx_Bytes\"\nfield :networkdown, :color => \"blue\",:alias => \"Net In\",:data  => \"*.*.#{name}.interface.#{infter_name}.rx_Bytes\"\n")
+        infter_name_a << infter_name
       when /hba/
         hba_fc_name = tmp_s[2]
         hba_a << hba_fc_name
-        hba = file_write("#{host_path}/hba_#{hba_fc_name}.graph","title \"Combined hba #{hba_fc_name} network\"\nvtitle \"MByte\"\narea :none\nfield :rmbs, :scale => 1,:color => \"blue\",:alias => \"Net OUT\",:data  => \"*.*.#{name}.hba.#{hba_fc_name}.rmbs\"\nfield :wmbs, :scale => 1,:color => \"green\",:alias => \"Net IN\",:data  => \"*.*.#{name}.hba.#{hba_fc_name}.wmbs\"\n")
       end
     end
-    unless hba_a.empty?
-      count = hba_a.map{|hba_name| "field :#{hba_name}, :scale => 1, :alias => \"#{hba_name} Iops\", :data  => \"*.*.#{name}.hba.#{hba_name}.iops\""}
+
+    unless infter_name_a.uniq.empty?
+      infter_name_a.uniq.each do |int|
+        file_write("#{host_path}/interface-#{int}.graph","title \"Combined Network #{int} Usage\"\nvtitle \"Byte\"\narea :none\nfield :networkup, :color => \"green\",:alias => \"Net Out\",:data  => \"*.*.#{name}.interface.#{int}.tx_Bytes\"\nfield :networkdown, :color => \"blue\",:alias => \"Net In\",:data  => \"*.*.#{name}.interface.#{int}.rx_Bytes\"\n")
+      end
+    end
+    
+    unless hba_a.uniq.empty?
+      hba_a.uniq.each do |hbaname|
+        file_write("#{host_path}/hba_#{hbaname}.graph","title \"Combined hba #{hbaname} network\"\nvtitle \"MByte\"\narea :none\nfield :rmbs, :scale => 1,:color => \"blue\",:alias => \"Net OUT\",:data  => \"*.*.#{name}.hba.#{hbaname}.rmbs\"\nfield :wmbs, :scale => 1,:color => \"green\",:alias => \"Net IN\",:data  => \"*.*.#{name}.hba.#{hbaname}.wmbs\"\n")
+      end
+      count = hba_a.uniq.map{|hba_name| "field :#{hba_name}, :scale => 1, :alias => \"#{hba_name} Iops\", :data  => \"*.*.#{name}.hba.#{hba_name}.iops\""}
       hba_iops = file_write("#{host_path}/hba_iops.graph","title \"Combined hbas IOPS\"\nvtitle \"int\"\narea :none\n"+count.join("\n"))
     end
   end
