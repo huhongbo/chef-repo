@@ -1,46 +1,81 @@
 {
-	"checks": {
-		"system": {
-			"type":"metric",
-			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/system_default.rb --scheme :::name:::",
-			"subscribers":["system"],
-			"interval":60
-			},
-		"network": {
-			"type":"metric",
-			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/network.rb --scheme :::name:::",
-			"subscribers":["system"],
-			"interval":60
-			},
-		"load": {
-			"type":"metric",
-			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/load.rb --scheme :::name:::",
-			"subscribers":["system"],
-			"interval":60
-			},
-		"disk_tps": {
-			"type":"metric",
-			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/disk_tps.rb --scheme :::name:::",
-			"subscribers":["system"],
-			"interval":60
-		},
-		"hba": {
-			"type":"metric",
-			"handlers":["graphite"],
-			"command":"/etc/sensu/plugins/system/hba.rb --scheme :::name:::",
-			"subscribers":["system"],
-			"interval":60
-		},
-		"user_cpu": {
-			"type": "metric",
-			"handlers": ["graphite"],
-			"command": "/etc/sensu/plugins/system/system_user_cpu_used.rb --scheme :::name:::",
-			"subscribers": ["system"],
-			"interval": 60
-		}
-	}
+  "checks": {
+    "system": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/system_default.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "network": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/network.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "netstat": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/netstat.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "load": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/load.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "disk_tps": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/disk_tps.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "hba": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/hba.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    },
+    "user_cpu": {
+      "type": "metric",
+      "handlers": [
+        "graphite"
+      ],
+      "command": "/etc/sensu/plugins/system/system_user_cpu_used.rb --scheme :::name:::",
+      "subscribers": [
+        "system"
+      ],
+      "interval": 60
+    }
+  }
 }

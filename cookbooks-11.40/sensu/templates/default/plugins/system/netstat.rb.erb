@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+# netstat -a tcp wc -l [LISTEN TIME_WAIT ESTABLISHED FIN_WAIT SENT RECEIVED]
+# 
+# code dn365
+# v0.01
+
+require 'rubygems' if RUBY_VERSION < '1.9.0'
+require 'sensu-plugin/metric/cli'
+require 'socket'
+#require 'sigar'
+
+$VERBOSE = nil
+class NetstatGraphite < Sensu::Plugin::Metric::CLI::Graphite
+  option :scheme,
+    :description => "Metric naming scheme, text to prepend to metric",
+    :short => "-s SCHEME",
+    :long => "--scheme SCHEME",
+    :default => "#{Socket.gethostname}"
+    
+    
+    def run
+      #sigar = Sigar.new
+      #sys_info = sigar.sys_info.name.downcase
+      stat_total,listen,time_wait,established,fin_wait,syn_sent,syn_received = 0,0,0,0,0,0,0
+      
+      netstat_cmd = %x[netstat -a|grep tcp].to_s.split("\n")
+      timestamp = Time.now.to_i
+      netstat_cmd.each do |net|
+        case net.split(" ")[-1]
+        when /LISTEN/
+          listen += 1
+        when /TIME_WAIT/
+          time_wait += 1
+        when /ESTABLISHED/
+          established += 1
+        when /FIN_WAIT/
+          fin_wait += 1
+        when /SENT/
+          syn_sent +=1
+        when /RECEIVED/
+          syn_received += 1
+        end
+      end
+      stat_total = netstat_cmd.size
+      metrics = {
+        :netstat => {
+          :total => stat_total,
+          :listen =>  listen,
+          :time_wait => time_wait,
+          :established => established,
+          :fin_wait => fin_wait,
+          :syn_sent => syn_sent,
+          :syn_received => syn_received
+        }
+      }
+      metrics.each do |parent, children|
+        children.each do |child, value|
+          output ["<%= @path %>",config[:scheme], parent, child].join("."), value, timestamp
+        end
+      end
+      ok 
+    end
+end

@@ -172,7 +172,7 @@ hba_iops.close
             infter_name = n.split("/")[-1]
             unless ["lo","lo0","bond0"].include?(infter_name)
               interface = file_write("#{host_dir}/interface-#{infter_name}.graph","title \"Combined Network #{infter_name} Usage\"
-vtitle \"bps\"
+vtitle \"Byte\"
 area :none
 
 field :networkup, :color => \"green\",
