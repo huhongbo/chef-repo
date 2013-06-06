@@ -43,6 +43,7 @@ default["sensu"]["tags"]["sources"] = []
 default["sensu"]["system_script"] = [
                                           "system_default.rb",
                                           "network.rb",
+                                          "netstat.rb"
                                           "load.rb",
                                           "system_user_cpu_used.rb",
                                           "disk_tps.rb",
