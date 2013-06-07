@@ -27,7 +27,7 @@ def mk_dir(dir_name)
   end
 end
 
-color_list = ["#2828FF","#73BF00","#AD5A5A","#AE0000","#66B3FF","#009393","#FF79BC","#009100","#D94600","#9F4D95","#9F4D95"]
+#color_list = ["#2828FF","#73BF00","#AD5A5A","#AE0000","#66B3FF","#009393","#FF79BC","#009100","#D94600","#9F4D95","#9F4D95"]
 nodes_gdash_sources = []
 test_cour = JSON.parse(whisp_data).group_by{|i| i.split(".")[1] }.map{|dom,value| v_sou = value.map{|i| i.split(".")[3..-1].join(".") unless i.split(".")[2].eql?("all") }.compact; [dom,v_sou] unless %w[carbon uwsgi].include?(dom)}.compact
 
