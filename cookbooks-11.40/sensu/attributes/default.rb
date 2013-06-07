@@ -2,7 +2,7 @@ require 'rbconfig'
 
 #default["graphite"]["url"] = "graphite1.dntmon.com"
 default["graphite"]["url"] = "graphite.zj.chinamobile.com"
-default["graphite"]["ser_ip"] = "10.70.181.210"
+default["graphite"]["ser_ip"] = "10.70.181.217"
 
 
 
@@ -17,7 +17,7 @@ default["sensu"]["system"] = "#{node["sensu"]["plugins"]}/system"
 
 # rabbitmq ipaddress and port
 
-default["sensu"]["config"]["rabbitmq_ip"] = "10.70.181.210"
+default["sensu"]["config"]["rabbitmq_ip"] = "10.70.181.217"
 default["sensu"]["config"]["rabbitmq_prot"] = 5672
 default["sensu"]["config"]["rabbitmq_user"] = "sensu"
 default["sensu"]["config"]["rabbitmq_password"] = "Passw0rd"
@@ -43,6 +43,7 @@ default["sensu"]["tags"]["sources"] = []
 default["sensu"]["system_script"] = [
                                           "system_default.rb",
                                           "network.rb",
+                                          "netstat.rb",
                                           "load.rb",
                                           "system_user_cpu_used.rb",
                                           "disk_tps.rb",
@@ -51,34 +52,56 @@ default["sensu"]["system_script"] = [
 
 
 default["sensu"]["default_value"] = {
-  default: {
-    cpu: {
-      warning: 95,
-      critical: 100
+  :default => {
+    :cpu => {
+      :warning => 95,
+      :critical => 100
     },
-    stdev_cpu: {
-      warning: 10,
-      critical: 12
+    :stdev_cpu => {
+      :warning => 10,
+      :critical => 12
     },
-    filesystem_event: {
-      warning: 90,
-      critical: 95
+    :filesystem_event => {
+      :warning => 90,
+      :critical=> 95
     },
-    memory_event: {
-      warning: 90,
-      critical: 95
+    :memory_event => {
+      :warning => 90,
+      :critical => 95
     },
-    swap_event: {
-      warning: 95,
-      critical: 98
+    :swap_event => {
+      :warning => 95,
+      :critical => 98
     },
-    proc_event: {
-      warning: 90,
-      critical: 95
+    :proc_event => {
+      :warning => 90,
+      :critical => 95
     }
   },
-  check_source_list: ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
+  :check_source_list => ["cpu","stdev_cpu","filesystem_event","memory_event","swap_event","proc_event"]
 } 
+
+
+case os
+when "aix"
+  if platform_version =~ /5/
+    default["sensu"]["gem"]["platform"] = "powerpc-aix-5"
+  elsif platform_version =~ /6/
+    default["sensu"]["gem"]["platform"] = "powerpc-aix-6"
+  else
+    default["sensu"]["gem"]["platform"] = nil
+  end
+when "hpux"
+  if platform_version =~ /11.31/ and cpu["0"]["model"] =~ /Itanium/
+    default["sensu"]["gem"]["platform"] = "ia64-hpux-11"
+  elsif platform_version =~ /11.11/ and cpu["0"]["model"] =~ /PA RISC/
+    default["sensu"]["gem"]["platform"] = "hppa2.0w-hpux-11"
+  else
+    default["sensu"]["gem"]["platform"] = nil
+  end
+else
+  default["sensu"]["gem"]["platform"] = nil
+end
 
 
 

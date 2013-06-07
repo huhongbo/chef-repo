@@ -5,7 +5,7 @@
 require 'rbconfig'
 
 # chef server ip
-default["chef"]["server"]["ip"] = "10.70.181.210"
+default["chef"]["server"]["ip"] = "10.70.181.217"
 default["chef"]["server"]["hostname"] = "pc-monsvc"
 
 default["chef_client"]["interval"]    = "300"
@@ -16,7 +16,7 @@ default["chef_client"]["log_level"]   = :info
 default["chef_client"]["verbose_logging"] = true
 default["chef_client"]["conf_dir"]    = "/etc/chef"
 default["chef_client"]["bin"]         = "/usr/bin/chef-client"
-default["chef_client"]["server_url"]  = "https://#{node["chef"]["server"]["hostname"]}"
+default["chef_client"]["server_url"]  = "https://#{node["chef"]["server"]["ip"]}"
 default["chef_client"]["validation_client_name"] = "chef-validator"
 
 

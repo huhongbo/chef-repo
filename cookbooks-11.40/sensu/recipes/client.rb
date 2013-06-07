@@ -32,10 +32,20 @@ file "#{node["sensu"]["path"]}/config.json" do
 end
 
 # client.rb file
+
+ip_address = node["ipaddress"] ? node.ipaddress : nil
+unless ip_address
+  if node.platform.include?("hpux")
+    ip_address = %x[ping #{node.hostname} -n 1].to_s.split("from")[-1].split(":")[0]
+  else
+    ip_address = %x[ping -c1 #{node.hostname}].to_s.scan(/\(([^\(]*)\)/).flatten[0]
+  end
+end
+
 client = {
   "client"=> {
     "name"=> node.hostname,
-    "address"=> node.ipaddress,
+    "address"=> ip_address,
     "safe_mode"=>false,
     "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
   }
