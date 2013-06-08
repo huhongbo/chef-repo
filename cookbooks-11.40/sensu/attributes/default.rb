@@ -17,7 +17,7 @@ default["sensu"]["system"] = "#{node["sensu"]["plugins"]}/system"
 
 # rabbitmq ipaddress and port
 
-default["sensu"]["config"]["rabbitmq_ip"] = "10.70.181.217"
+default["sensu"]["config"]["rabbitmq_ip"] = node["graphite"]["ser_ip"]
 default["sensu"]["config"]["rabbitmq_prot"] = 5672
 default["sensu"]["config"]["rabbitmq_user"] = "sensu"
 default["sensu"]["config"]["rabbitmq_password"] = "Passw0rd"
