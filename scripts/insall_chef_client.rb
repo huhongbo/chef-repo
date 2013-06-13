@@ -45,22 +45,26 @@ if options[:host] and options[:ip]
   vk = File.open("/etc/chef/#{file_key}","w")
   vk.puts(content)
   vk.close
-  
-  gem_bin = "gem"
-  if (gem_bin_path=%x{which gem}.chomp) && File.executable?(gem_bin_path)
-    gem_bin = gem_bin_path
+  os_type = %x(uname)
+  case os_type.to_s
+  when /HP-UX/
+    bin_path = "/usr/local/ruby1.9/bin"
+  when /AIX/
+    bin_path = "/opt/freeware/ruby1.9/bin"
+  else
+    bin_path = "/usr/bin"
   end
-  gem_s = system("#{gem_bin} sources -l")
+  
+  gem_bin = "#{bin_path}/gem"
+  
+  gem_s = system("#{gem_bin} sources -l").to_s
   #unless gem_s.include?("gemserver")
     system("#{gem_bin} sources -a http://gemserver/")
     system("#{gem_bin} sources -r http://rubygems.org/")
     system("#{gem_bin} sources -r https://rubygems.org/")
     #end
   
-  client_bin = "chef-client"
-  if (chef_in_path=%x{which chef-client}.chomp) && File.executable?(chef_in_path)
-    client_bin = chef_in_path
-  end
+  client_bin = "#{bin_path}/chef-client"
   
   system("#{client_bin} -S https://#{options[:ip]} -o role[default_client]")
 else

@@ -35,7 +35,13 @@ confing = {
   "api"=> {
     "host"=> "127.0.0.1",
     "port"=> 4567
-  }
+  },
+  "dashboard" => {
+     "host" => "127.0.0.1",
+     "port" => 8050,
+     "user" => "admin",
+     "password" => "admin"
+   }
 }
 
 file "#{node["sensu"]["path"]}/config.json" do
