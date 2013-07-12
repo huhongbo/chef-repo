@@ -62,6 +62,7 @@ if options[:host] and options[:ip]
     system("#{gem_bin} sources -a http://gemserver/")
     system("#{gem_bin} sources -r http://rubygems.org/")
     system("#{gem_bin} sources -r https://rubygems.org/")
+    system("#{gem_bin} install chef --no-ri --no-rdoc")
     #end
   
   client_bin = "#{bin_path}/chef-client"
