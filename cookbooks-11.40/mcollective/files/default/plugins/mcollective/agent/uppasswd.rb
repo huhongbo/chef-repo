@@ -21,6 +21,18 @@ module MCollective
         reply[:add_key] = system("echo #{request[:ssh_key]} >> /root/.ssh/authorized_keys")
         reply[:msg] = $?.exitstatus
       end
+      action "useradd" do
+        validate :user, String
+        validate :home, String
+        validate :password, String
+        reply[:add_user] = system("useradd #{request[:user]} -d #{request[:home]}/#{request[:user]} -m")
+        reply[:add_passwd] = system("passwd #{request[:user]}<<EOF\n#{request[:password]}\n#{request[:password]}\nEOF")
+        if reply[:add_user] and reply[:add_passwd]
+          reply[:msg] = 0
+        else
+          reply[:msg] = 1
+        end
+      end
     end
   end
 end
