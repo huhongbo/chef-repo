@@ -26,8 +26,11 @@ module ClearLog
     Dir[path].each do |file_path|
       unless File.directory?(file_path)
         basename = File.basename(file_path)
-        flags = File::FNM_DOTMATCH | File::FNM_PATHNAME
-        if matches.find {|f| File.fnmatch(f, basename, flags)}
+        #flags = File::FNM_DOTMATCH | File::FNM_PATHNAME
+        #if matches.find {|f| File.fnmatch(f, basename, flags)}
+        #  file_arry << file_path
+        #end
+        if matches.find{|i| Regexp.new(i) =~ basename }
           file_arry << file_path
         end
       end
