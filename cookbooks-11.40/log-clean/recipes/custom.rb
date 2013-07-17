@@ -12,7 +12,8 @@ nodes = data_bag_item("logs","nodes")
 nodes_hash = data_bag_to_hash(nodes)
 
 
-rm_arry, archive_arry, cat_arry = [], [],[]
+rm_arry, archive_arry, cat_arry = [],[],[]
+stat_run = false
 if nodes_hash["#{node.hostname}"]
 nodes_hash["#{node.hostname}"].each do |k,v|
   file_path = v["file_path"]
@@ -22,6 +23,8 @@ nodes_hash["#{node.hostname}"].each do |k,v|
   age = v["age"]    
   operate_type = v["operate_type"]       
   type = v["type"]
+  run = v["run"]
+  stat_run = true if run
   
   fileage = file_age(age.scan(/h|d|w/)[-1], age.scan(/\d+/)[0])
   filesize = size ? file_size(size.scan(/b|k|m|g|t/)[-1], size.scan(/\d+/)[0]) : nil
@@ -74,8 +77,10 @@ files_hash = {
 directory "/var/chef/exec" do
   action :create
 end
+
 unless files_hash["rm"].empty? && files_hash["archive"].empty? && files_hash["cat"].empty?
-  template "/var/chef/exec/clean-log-#{Time.now.to_i}.sh" do
+  time = Time.now.to_i
+  template "/var/chef/exec/clean-log-#{time}.sh" do
     source "clean-log.sh.erb"
     mode 0755
     variables(
@@ -84,9 +89,24 @@ unless files_hash["rm"].empty? && files_hash["archive"].empty? && files_hash["ca
       :config_cat => files_hash["cat"]
       )
   end
+  execute "clear logs file" do
+    command "sh /var/chef/exec/clean-log-#{time}.sh"
+    not_if { stat_run }
+  end
 end
+
+# if stat_run
+#   hold_time = (60 **2)*24*30
+#   execute "clear logs file" do
+#     command "sh /var/chef/exec/clean-log-#{time}.sh"
+#     not_if { ::File.exists?("/var/chef/exec/clean-log-#{time}.sh")}
+#   end
+# else
+#   hold_time = (60 **2)*24*2
+# end
+hold_time = stat_run ? (60 **2)*24*30 : (60 **2)*24*2
 Dir.glob("/var/chef/exec/*.sh").each do |file|
-  if (Time.now.to_i - File.mtime(file).to_i) > 2*(60 **2)
+  if (Time.now.to_i - File.mtime(file).to_i) > hold_time
     file "#{file}" do
       action :delete
     end
