@@ -91,7 +91,7 @@ unless files_hash["rm"].empty? && files_hash["archive"].empty? && files_hash["ca
   end
   execute "clear logs file" do
     command "sh /var/chef/exec/clean-log-#{time}.sh"
-    not_if { stat_run }
+    not_if { !stat_run }
   end
 end
 
