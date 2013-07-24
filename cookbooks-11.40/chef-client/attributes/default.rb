@@ -5,8 +5,8 @@
 require 'rbconfig'
 
 # chef server ip
-default["chef"]["server"]["ip"] = "10.70.181.217"
-default["chef"]["server"]["hostname"] = "pc-monsvc"
+default["chef"]["server"]["ip"] = "127.0.0.1"
+default["chef"]["server"]["hostname"] = "dntmon"
 
 default["chef_client"]["interval"]    = "300"
 default["chef_client"]["splay"]       = "30"

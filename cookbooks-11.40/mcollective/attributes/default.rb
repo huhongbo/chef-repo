@@ -3,7 +3,7 @@ require 'rbconfig'
 
 default["ruby"]["env_path"] = "/opt/chef/embedded/bin"
 # stomp config
-default["chef"]["server"]["hostname"] = "pc-monsvc"
+default["chef"]["server"]["hostname"] = "dntmon"
 default["mcollective"]["stomp"]["host"] = node["chef"]["server"]["hostname"]
 default["mcollective"]["stomp"]["port"] = "61613"
 default["mcollective"]["stomp"]["user"] = "mcollective"
