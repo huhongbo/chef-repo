@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+<%= ::File.exist?("#{node["ruby"]["env_path"]}/ruby") ? "#!#{node["ruby"]["env_path"]}/ruby" : "#!/usr/bin/env ruby" %>
 #
 # System hba Plugin
 # this plugin support aix5.3 aix6.1 hpux11.31

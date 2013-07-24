@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+<%= ::File.exist?("#{node["ruby"]["env_path"]}/ruby") ? "#!#{node["ruby"]["env_path"]}/ruby" : "#!/usr/bin/env ruby" %>
 #
 # System load Plugin
 # ===

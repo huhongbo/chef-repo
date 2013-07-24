@@ -42,21 +42,25 @@ end
 unless node.platform.include?("windows")
   
   gem_package "sensu" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     action :remove
   end
   
   gem_package "sensu-client" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc"
     version "0.9.13"
     action :install
   end
 
   gem_package "sensu-plugin" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc"
     version "0.1.7"
     action :install
   end
   gem_package "sigar" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc --platform #{node["sensu"]["gem"]["platform"]}"
     action :install
   end

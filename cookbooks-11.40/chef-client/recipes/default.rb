@@ -40,6 +40,7 @@ end
 
 # upgrading chef version
 gem_package "chef" do
+  gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
   action :install
   options "--no-ri --no-rdoc"
   version "11.4.0"

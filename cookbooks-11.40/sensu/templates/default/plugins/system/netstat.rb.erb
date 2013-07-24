@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+<%= ::File.exist?("#{node["ruby"]["env_path"]}/ruby") ? "#!#{node["ruby"]["env_path"]}/ruby" : "#!/usr/bin/env ruby" %>
 # netstat -a tcp wc -l [LISTEN TIME_WAIT ESTABLISHED FIN_WAIT Recv-Q, Send-Q]
 # 
 # code dn365

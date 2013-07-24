@@ -5,6 +5,7 @@ default["graphite"]["url"] = "graphite.zj.chinamobile.com"
 default["graphite"]["ser_ip"] = "10.70.181.217"
 
 
+default["ruby"]["env_path"] = "/opt/chef/embedded/bin"
 
 # sensu config directory
 
@@ -40,6 +41,13 @@ default["node"]["class"] = "OTHER.SUBOTHER"
 default["sensu"]["tags"]["sources"] = []
 
 # default graphite data's checks script file
+default["sensu"]["check_plugins"] = [
+  "check_graph.rb",
+  "check_max_proc.rb",
+  "check_system_event.rb",
+  "client-log_del.rb"
+  ]
+
 default["sensu"]["system_script"] = [
                                           "system_default.rb",
                                           "network.rb",
@@ -84,6 +92,7 @@ default["sensu"]["default_value"] = {
 
 case os
 when "aix"
+  default["ruby"]["env_path"] = "/opt/freeware/ruby1.9/bin"
   if platform_version =~ /5/
     default["sensu"]["gem"]["platform"] = "powerpc-aix-5"
   elsif platform_version =~ /6/
@@ -92,6 +101,7 @@ when "aix"
     default["sensu"]["gem"]["platform"] = nil
   end
 when "hpux"
+  default["ruby"]["env_path"] = "/usr/local/ruby1.9/bin"
   if platform_version =~ /11.31/ and cpu["0"]["model"] =~ /Itanium/
     default["sensu"]["gem"]["platform"] = "ia64-hpux-11"
   elsif platform_version =~ /11.11/ and cpu["0"]["model"] =~ /PA RISC/
@@ -107,6 +117,7 @@ end
 
 case node['platform_family']
 when "windows"
+  default["ruby"]["env_path"] = "C:/opscode/chef/embedded/bin"
   default["sensu"]["path"] = "C:/etc/sensu"
   default["sensu"]["log_dir"] = "#{node["sensu"]["path"]}/log"
   default["sensu"]["conf.d"] = "#{node["sensu"]["path"]}/conf.d"

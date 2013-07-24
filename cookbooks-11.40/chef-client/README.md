@@ -1,4 +1,4 @@
-Chef 0.11.04 or higher is required.
+Chef 11.04 or higher is required.
 
 Platforms
 ---------
@@ -20,12 +20,5 @@ Description
 重新调整chef-client参数,添加支持windows端chef client 注册为系统服务
 
 
-Requirements
+Version
 ============
-
-Attributes
-==========
-
-Usage
-=====
-

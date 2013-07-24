@@ -99,10 +99,17 @@ template "#{node["sensu"]["conf.d"]}/check_event.json" do
 end
 
 ##copy sensu plugin files
-remote_directory node["sensu"]["plugins"] do
-  source "sensu/plugins"
-  recursive true
-  files_mode 0755 unless node.platform.eql?("windows")
+# remote_directory node["sensu"]["plugins"] do
+#  source "sensu/plugins"
+#  recursive true
+#  files_mode 0755 unless node.platform.eql?("windows")
+# end
+
+node["sensu"]["check_plugins"].each do |f|
+  template "#{node["sensu"]["plugins"]}/#{f}" do
+    source "plugins/#{f}.erb"
+    mode 0755 unless node.platform.eql?("windows")
+  end
 end
 
 dom_conf = Hash.new

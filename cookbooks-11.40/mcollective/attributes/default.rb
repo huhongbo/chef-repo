@@ -1,6 +1,7 @@
 # mcollective config
 require 'rbconfig'
 
+default["ruby"]["env_path"] = "/opt/chef/embedded/bin"
 # stomp config
 default["chef"]["server"]["hostname"] = "pc-monsvc"
 default["mcollective"]["stomp"]["host"] = node["chef"]["server"]["hostname"]
@@ -33,7 +34,12 @@ default['mcollective']['fact_whitelist'] = [
                                             'uptime_seconds'
                                            ]
 case node['platform_family']
+when /aix/
+  default["ruby"]["env_path"] = "/opt/freeware/ruby1.9/bin"
+when /hpux/
+  default["ruby"]["env_path"] = "/usr/local/ruby1.9/bin"
 when "windows"
+  default["ruby"]["env_path"] = "C:/opscode/chef/embedded/bin"
   default["mcollective"]["config_dir"] = "C:/etc/mcollective"
   default["mcollective"]["libdir"] = "#{node["mcollective"]["config_dir"]}/mcollective-plugins"
   default["mcollective"]["log_dir"] = "#{node["mcollective"]["config_dir"]}/log"
