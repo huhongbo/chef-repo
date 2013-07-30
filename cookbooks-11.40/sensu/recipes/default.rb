@@ -61,7 +61,7 @@ unless node.platform.include?("windows")
   end
   gem_package "sigar" do
     gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
-    options "--no-ri --no-rdoc --platform #{node["sensu"]["gem"]["platform"]}"
+    options "--no-ri --no-rdoc"
     action :install
   end
 end
