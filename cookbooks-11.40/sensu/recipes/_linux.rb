@@ -48,7 +48,7 @@ end
 service "sensu-client" do
   if (platform?("hpux"))
     provider Chef::Provider::Service::Hpux
-  elsif (platform?("aix"))
+  elsif (platform?("aix")) or node.os == "linux"
     provider Chef::Provider::Service::Init
   end
   supports :restart => true, :status => true

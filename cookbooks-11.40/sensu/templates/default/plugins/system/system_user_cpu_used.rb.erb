@@ -19,7 +19,7 @@ class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
     :default => "#{Socket.gethostname}"
 
   def sprintf_int(num)
-    return num.nil? ? 0 : sprintf("%.0f", num.to_i * 100)
+    return num.nil? ? 0 : sprintf("%.0f", num.to_f * 100)
   end
 
   def memd_percent(memory_value)
@@ -45,7 +45,7 @@ class SystemCpuUsed < Sensu::Plugin::Metric::CLI::Graphite
     end
 
     arry, mate = [],[]
-    ps.each_line {|i| arry << i.split(" ") }
+    ps.each_line {|i| arry << i.chomp.split(" ") }
     user_value_hash = arry.group_by {|i| i[2] }
     user_value_hash.each do |k,v|
       name = k
