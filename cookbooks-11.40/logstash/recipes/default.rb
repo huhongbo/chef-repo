@@ -53,12 +53,19 @@ syslog_conf = ::File.read("/etc/syslog.conf")
 
 unless syslog_conf.include?("10.70.213.133")
   %x[echo "*.warning;mail.none     @10.70.213.133" >> /etc/syslog.conf]
-  service "syslogd" do
-    if (platform?("hpux"))
-      provider Chef::Provider::Service::Hpux
+  if node[:platform] == "aix"
+    execute "restart syslogd" do
+      command "refresh -s syslogd"
+      action :run 
     end
-    #supports :restart => true, :status => true
-    action :restart
+  else
+    service "syslogd" do
+      if (platform?("hpux"))
+        provider Chef::Provider::Service::Hpux
+      end
+      #supports :restart => true, :status => true
+      action :restart
+    end
   end
 end
 
