@@ -41,6 +41,11 @@ else
 end
 
 if node.os == "aix"
+  #cp parse.pl to logstash path
+  template "#{node["logstash"]["dir_path"]}/parse.pl" do
+    source "parse.pl.erb"
+    mode 0755
+  end
   include_recipe "logstash::cron"
 end
 
