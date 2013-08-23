@@ -49,28 +49,29 @@ if node.os == "aix"
   include_recipe "logstash::cron"
 end
 
-syslog_conf = ::File.read("/etc/syslog.conf")
-
-unless syslog_conf.include?("10.70.213.133")
-  %x[echo "*.warning;mail.none     @10.70.213.133" >> /etc/syslog.conf]
-  case node[:platform]
-  when "aix"
-    execute "restart syslogd" do
-      command "refresh -s syslogd"
-      action :run 
-    end
-  when "hpux"
-    execute "stop syslogd" do
-      command "/sbin/init.d/syslogd stop"
-      action :run 
-    end
-    execute "start syslogd" do
-      command "/sbin/init.d/syslogd start"
-      action :run 
-    end
-  else
-    service "syslogd" do
-      action :restart
+if ::File.exist?("/etc/syslog.conf")
+  syslog_conf = ::File.read("/etc/syslog.conf")
+  unless syslog_conf.include?("10.70.213.133")
+    %x[echo "*.warning;mail.none     @10.70.213.133" >> /etc/syslog.conf]
+    case node[:platform]
+    when "aix"
+      execute "restart syslogd" do
+        command "refresh -s syslogd"
+        action :run 
+      end
+    when "hpux"
+      execute "stop syslogd" do
+        command "/sbin/init.d/syslogd stop"
+        action :run 
+      end
+      execute "start syslogd" do
+        command "/sbin/init.d/syslogd start"
+        action :run 
+      end
+    else
+      service "syslogd" do
+        action :restart
+      end
     end
   end
 end
