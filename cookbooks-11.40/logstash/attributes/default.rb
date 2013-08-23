@@ -3,7 +3,7 @@ require 'rbconfig'
 
 default["logstash"]["host"] = "10.78.170.11"
 
-default["logstash"]["aix_cron"] = "* * * * *"
+#default["logstash"]["aix_cron"] = "* * * * *"
 
 default["logstash"]["dir_path"] = "/opt/logstash"
 

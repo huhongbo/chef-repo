@@ -53,7 +53,7 @@ syslog_conf = ::File.read("/etc/syslog.conf")
 
 unless syslog_conf.include?("10.70.213.133")
   %x[echo "*.warning;mail.none     @10.70.213.133" >> /etc/syslog.conf]
-  service "rsyslog" do
+  service "syslogd" do
     if (platform?("hpux"))
       provider Chef::Provider::Service::Hpux
     end
@@ -61,7 +61,6 @@ unless syslog_conf.include?("10.70.213.133")
     action :restart
   end
 end
-
 
 
 #start service logstash
