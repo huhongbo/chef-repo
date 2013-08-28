@@ -7,13 +7,14 @@ directory node["logstash"]["dir_path"] + "/etc" do
   recursive true
 end
 
-remote_directory node["logstash"]["dir_path"] do
-  source "etc"
+remote_directory node["logstash"]["dir_path"] + "/etc" do
+  source "etc/patterns"
   recursive true
 end
 
 template node["logstash"]["dir_path"] + "/etc/shipper.conf" do
   source "shipper.conf.erb"
+  mode 0755
   not_if {File.exists?("#{node["logstash"]["dir_path"]}/etc/shipper.conf")}
 end
 
