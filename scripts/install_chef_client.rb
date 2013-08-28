@@ -59,7 +59,7 @@ if options[:host] and options[:ip]
     bin_path = "/usr/bin"
     bin_path = "/opt/chef/embedded/bin" if File.directory?("/opt/chef/embedded/bin")
     gem_bin = "#{bin_path}/gem"
-    client_bin = "#{bin_path}/chef-client"
+    client_bin = "/opt/chef/bin/chef-client"
   else
     gem_bin = "gem"
     client_bin = "chef-client"
@@ -71,8 +71,8 @@ if options[:host] and options[:ip]
   #unless gem_s.include?("gemserver")
   #system("#{gem_bin} uninstall -aIx ohai")
   system("#{gem_bin} sources -a http://gemserver/")
-  #system("#{gem_bin} sources -r http://rubygems.org/")
-  #system("#{gem_bin} sources -r https://rubygems.org/")
+  system("#{gem_bin} sources -r http://rubygems.org/")
+  system("#{gem_bin} sources -r https://rubygems.org/")
   #system("#{gem_bin} install ohai")
   system("#{gem_bin} install sigar --no-ri --no-rdoc")
   system("#{gem_bin} install chef --no-ri --no-rdoc")
