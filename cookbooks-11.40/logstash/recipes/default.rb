@@ -5,7 +5,7 @@ directory node["logstash"]["dir_path"] do
 end
 
 
-remote_directory node["logstash"]["dir_path"] do
+remote_directory node["logstash"]["dir_path"] + "/etc" do
   source "etc"
   recursive true
 end
