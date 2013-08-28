@@ -10,6 +10,11 @@ remote_directory node["logstash"]["dir_path"] do
   recursive true
 end
 
+template node["logstash"]["dir_path"] + "/etc/shipper.conf" do
+  source "shipper.conf.erb"
+  not_if {File.exists?("#{node["logstash"]["dir_path"]}/etc/shipper.conf")}
+end
+
 if node.os == "linux"
   #cp log.jar file to logstash path
   cookbook_file "#{node["logstash"]["dir_path"]}/log.jar" do
