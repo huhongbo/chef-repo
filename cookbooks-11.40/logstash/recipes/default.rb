@@ -18,7 +18,7 @@ end
 template node["logstash"]["dir_path"] + "/etc/shipper.conf" do
   source "shipper.conf.erb"
   mode 0755
-  not_if {File.exists?("#{node["logstash"]["dir_path"]}/etc/shipper.conf")}
+  not_if {::File.exist?("#{node["logstash"]["dir_path"]}/etc/shipper.conf")}
 end
 
 if node.os == "linux"
