@@ -89,13 +89,13 @@ class Hba < Sensu::Plugin::Metric::CLI::Graphite
   end
 
   def hpux_hba
-    hba_cmd = %x[sar -H 1 2]
+    hba_cmd = %x[sar -H 1 2|grep Average]
     arry,metrics_arry = [],[]
-    hba_cmd.each_line {|i| arry << i.chomp unless i.chomp.empty? or i.chomp.split(" ")[0] != "Average" or !i.chomp.split(" ")[1].include?("fcd") }
+    hba_cmd.each_line {|i| arry << i.chomp}
     unless arry.empty?
       arry.map do |i|
         fcs_name = "fcs" + i.split(" ")[1].scan(/\d+/).join("").to_s
-        tmbs = i.split(" ")[7].to_i + i.split(" ")[8].to_i
+        tmbs = i.split(" ")[7].to_f + i.split(" ")[8].to_f
         metrics_arry << [fcs_name,{:rmbs => i.split(" ")[7],:wmbs => i.split(" ")[8],:tmbs => tmbs,:iops => i.split(" ")[4],:riops => i.split(" ")[5],:wiops => i.split(" ")[6] }]
       end
     end
