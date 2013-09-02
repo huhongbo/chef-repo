@@ -2,7 +2,7 @@
 	"handlers":{
 		"default":{
 			"type":"set",
-			"handlers":["gelf","keepalive","alarm"]
+			"handlers":["keepalive"]
 		},
 		"event":{
 			"type": "pipe",

@@ -13,7 +13,7 @@ directory node["chef_client"]["conf_dir"] do
 end
 
 [node["chef_client"]["log_dir"],node["ohai"]["plugins"]].each do |dir_path|
-  directory dir_path do
+  directory "#{dir_path}" do
     action :create
   end
 end

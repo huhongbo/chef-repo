@@ -32,10 +32,20 @@ file "#{node["sensu"]["path"]}/config.json" do
 end
 
 # client.rb file
+
+ip_address = node["ipaddress"] ? node.ipaddress : nil
+unless ip_address
+  if node.platform.include?("hpux")
+    ip_address = %x[ping #{node.hostname} -n 1].to_s.split("from")[-1].split(":")[0]
+  else
+    ip_address = %x[ping -c1 #{node.hostname}].to_s.scan(/\(([^\(]*)\)/).flatten[0]
+  end
+end
+
 client = {
   "client"=> {
     "name"=> node.hostname,
-    "address"=> node.ipaddress,
+    "address"=> ip_address,
     "safe_mode"=>false,
     "subscriptions"=> ["system"] + node["sensu"]["tags"]["sources"]
   }
@@ -89,10 +99,17 @@ template "#{node["sensu"]["conf.d"]}/check_event.json" do
 end
 
 ##copy sensu plugin files
-remote_directory node["sensu"]["plugins"] do
-  source "sensu/plugins"
-  recursive true
-  files_mode 0755 unless node.platform.eql?("windows")
+# remote_directory node["sensu"]["plugins"] do
+#  source "sensu/plugins"
+#  recursive true
+#  files_mode 0755 unless node.platform.eql?("windows")
+# end
+
+node["sensu"]["check_plugins"].each do |f|
+  template "#{node["sensu"]["plugins"]}/#{f}" do
+    source "plugins/#{f}.erb"
+    mode 0755 unless node.platform.eql?("windows")
+  end
 end
 
 dom_conf = Hash.new

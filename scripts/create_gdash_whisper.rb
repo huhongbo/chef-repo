@@ -1,204 +1,99 @@
 #!/usr/bin/env ruby
 
 # code dn365
-# v 0.02
+# v 0.03
 # add users top 5
-
+#
+require "rest_client"
+require 'json'
 #require 'fileutils'
-whisp_path = "/opt/graphite/storage/whisper"
-gdash_path = "/opt/gdash/graph_templates"
+whisp_sources = "http://graphite1.dntmon.com/metrics/index.json"
+#gdash_path = "/opt/gdash/graph_templates"
+gdash_path = "/opt/chef-server/embedded/service/gdash/graph_templates"
+
+whisp_data = RestClient.get(whisp_sources)
 
 def file_write(title,body)
-  unless File.exist?(title)
-   file =  File.open("#{title}","w")
-   file.write("#{body}")
-   file.close
-   print "#{title} create success. \n"
-  else
-   print "File #{title} exist ... \n"
-  end
+  file =  File.open("#{title}","w")
+  file.write("#{body}")
+  file.close
+  print "#{title} create success. \n"
 end
 
 def mk_dir(dir_name)
   unless File.directory?(dir_name)
     Dir.mkdir(dir_name)
     print "app directory #{dir_name} created success .\n"
-  else
-    print "app dirrctory #{dir_name} exist ..\n"
   end
 end
 
+#color_list = ["#2828FF","#73BF00","#AD5A5A","#AE0000","#66B3FF","#009393","#FF79BC","#009100","#D94600","#9F4D95","#9F4D95"]
+nodes_gdash_sources = []
+test_cour = JSON.parse(whisp_data).group_by{|i| i.split(".")[1] }.map{|dom,value| v_sou = value.map{|i| i.split(".")[3..-1].join(".") unless i.split(".")[2].eql?("all") }.compact; [dom,v_sou] unless %w[carbon uwsgi].include?(dom)}.compact
 
-Dir["#{whisp_path}/*"].each do |app|
-  unless app.include?("carbon")
-    app_name = app.split("/")[-1]
-    mk_dir("#{gdash_path}/#{app_name}")
-    Dir["#{app}/*"].each do |c|
-      host_name = c.split("/")[-1]
-      host_dir = "#{gdash_path}/#{app_name}/#{host_name}"
-      graphite_url = "#{app_name}.#{host_name}"
-      mk_dir("#{gdash_path}/#{app_name}/#{host_name}")
-      dash = file_write("#{host_dir}/dash.yaml",":name: #{host_name} Metrics
-:description: Hourly metrics for the #{host_name} system\n")
-      Dir["#{c}/system/*"].each do |sys|
-        cname = sys.split("/")[-1]
-        case cname
-        when "users"
-          user_top_cpu = file_write("#{host_dir}/cpu_top5.graph","title \"Combined CPU Top 5 Usage\"
-vtitle \"percent\"
-area :none
-ymin 0
-description \"The combined user CPU Total top 5 usage for all Exim Anti Spam servers\"
+gdash_sour = Hash.new
+test_cour.each do |dom,value|
+  gdash_sour[dom] = Hash.new
+  value.group_by{|i| i.split(".")[0]}.map{|n,vv| gdash_sour[dom][n] = vv }
+end
 
-group :cpu_top5, :data  => \"highestMax(#{graphite_url}.system.users.*.cpu_total,5)\",
-          :subgroup => 4")
-          user_top_memoey = file_write("#{host_dir}/memory_top5.graph","title \"Combined user memory Top 5 Usage\"
-vtitle \"percent\"
-area :none
-ymin 0
-description \"The combined user memory Total top 5 usage for all Exim Anti Spam servers\"
 
-group :mem_top5, :data  => \"highestMax(#{graphite_url}.system.users.*.mem_total,5)\",
-          :subgroup => 4")
-          user_top_count = file_write("#{host_dir}/user_count_top5.graph","title \"Combined user count Top 5 Usage\"
-vtitle \"int\"
-area :none
-ymin 0
-description \"The combined user count Total top 5 usage for all Exim Anti Spam servers\"
+gdash_sour.each do |dom,v|
+  dom_path = gdash_path + "/" + dom
+  mk_dir(dom_path)
+  v.each do |node,vv|
+    host_path = dom_path +"/"+node
+    name = node
+    mk_dir(host_path)
+    # create files
+    
+    dash = file_write("#{host_path}/dash.yaml",":name: #{name} Metrics\n:description: Hourly metrics for the #{name} system\n")
+    
+    user_top_cpu = file_write("#{host_path}/cpu_top5.graph","title \"Combined CPU Top 5 Usage\"\nvtitle \"percent\"\narea :none\nymin 0\ndescription \"The combined user CPU Total top 5 usage for all Exim Anti Spam servers\"\ngroup :cpu_top5, :data  => \"highestMax(*.*.#{name}.users.*.cpu_total,5)\", :subgroup => 4\n")
+    
+    user_top_memoey = file_write("#{host_path}/memory_top5.graph","title \"Combined user memory Top 5 Usage\"\nvtitle \"percent\"\narea :none\nymin 0\ndescription \"The combined user memory Total top 5 usage for all Exim Anti Spam servers\"\ngroup :mem_top5, :data  => \"highestMax(*.*.#{name}.users.*.mem_total,5)\", :subgroup => 4\n")
+    
+    user_top_count = file_write("#{host_path}/user_count_top5.graph","title \"Combined user count Top 5 Usage\"\nvtitle \"int\"\narea :none\nymin 0\ndescription \"The combined user count Total top 5 usage for all Exim Anti Spam servers\"\ngroup :count_top5, :data  => \"highestMax(*.*.#{name}.users.*.count,5)\", :subgroup => 4\n")
 
-group :count_top5, :data  => \"highestMax(#{graphite_url}.system.users.*.count,5)\",
-          :subgroup => 4")
-        when "cpu"
-          cpu = file_write("#{host_dir}/cpu.graph","title \"Combined CPU Usage\"
-vtitle \"percent\"
-area :none
-ymax 100 
-ymin 0
-description \"The combined CPU usage for all Exim Anti Spam servers\"
+    cpu = file_write("#{host_path}/cpu.graph","title \"Combined CPU Usage\"\nvtitle \"percent\"\narea :none\nymax 100\nymin 0\ndescription \"The combined CPU usage for all Exim Anti Spam servers\"\nfield :wait, :scale => 1, :color => \"red\", :alias => \"Cpu Wait\", :data  => \"*.*.#{name}.cpu.wait\"\nfield :system, :scale => 1, :color => \"orange\", :alias => \"Cpu System\", :data  => \"*.*.#{name}.cpu.sys\"\nfield :user, :scale => 1, :color => \"yellow\", :alias => \"Cpu User\", :data  => \"*.*.#{name}.cpu.user\"\n")
+    
+    cpu_total = file_write("#{host_path}/cpu_total_used.graph", "title \"Combined CPU Total Used Usage\"\nvtitle \"percent\"\narea :none\nymax 100\nymin 0\ndescription \"The combined CPU Total usage for all Exim Anti Spam servers\"\nfield :total_used, :scale => 1, :color => \"red\", :alias => \"Cpu Total Uesd\", :data => \"*.*.#{name}.cpu.total\"\n")
+    
+    memory = file_write("#{host_path}/memory.graph","title \"Combined Memory Usage\"\nvtitle \"precent\"\nymax 100\nymin 0\narea :none\nfield :sys, :scale => 1,:color => \"#1d953f\", :alias => \"Memory Sys\", :data  => \"*.*.#{name}.memory.mem_sys\"\nfield :use, :scale => 1,:color => \"#bed742\",:alias => \"Memory used\", :data  => \"*.*.#{name}.memory.mem_used\"\nfield :swap, :scale => 1,:color => \"#d71345\",:alias => \"Swap Used\",:data  => \"*.*.#{name}.memory.swap_used\"\nfield :actual, :scale => 1, :alias => \"Actual Used\",:data  => \"*.*.#{name}.memory.mem_actual\"\n")
+    
+    load = file_write("#{host_path}/load.graph", "title \"Combined Load\"\nvtitle \"int\"\narea :first\nfield :loadone, :scale => 1,:color => \"green\",:alias => \"Load One\",:data  => \"*.*.#{name}.load.onemonute\"\nfield :loadfive, :scale => 1,:color => \"#585eaa\", :alias => \"Load Five\", :data  => \"*.*.#{name}.load.fivemonute\"\nfield :loadfifteen, :scale => 1,:color => \"#faa755\",:alias => \"Load Fifteen\",:data  => \"*.*.#{name}.load.fifteenmonute\"\n")
+    
+    netstat = file_write("#{host_path}/netstat.graph","title \"Combined Netstat\"\nvtitle \"int\"\narea :none\nfield :stotal, :scale => 1, :alias => \"TCP total\",:data  => \"*.*.#{name}.netstat.total\"\nfield :time_wait, :scale => 1, :alias => \"TCP time_wait\",:data  => \"*.*.#{name}.netstat.time_wait\"\nfield :listen, :scale => 1, :alias => \"TCP listen\",:data  => \"*.*.#{name}.netstat.listen\"\nfield :fin_wait, :scale => 1, :alias => \"TCP fin_wait\",:data  => \"*.*.#{name}.netstat.fin_wait\"\nfield :established, :scale => 1, :alias => \"TCP established\",:data  => \"*.*.#{name}.netstat.established\"\n")
+    
+    netstat_q = file_write("#{host_path}/netstat_q.graph","title \"Combined Netstat send and received\"\nvtitle \"int\"\narea :none\nfield :sent_q, :scale => 1, :alias => \"TCP sent_q\",:data  => \"*.*.#{name}.netstat.sent_q\"\nfield :received_q, :scale => 1, :alias => \"TCP received_q\",:data  => \"*.*.#{name}.netstat.received_q\"\n")
 
-field :wait, :scale => 1,
-              :color => \"red\",
-              :alias => \"Cpu Wait\",
-              :data  => \"#{graphite_url}.system.cpu.wait\"
-
-field :system, :scale => 1,
-              :color => \"orange\",
-              :alias => \"Cpu System\",
-              :data  => \"#{graphite_url}.system.cpu.sys\"
-
-field :user, :scale => 1,
-            :color => \"yellow\",
-            :alias => \"Cpu User\",
-            :data  => \"#{graphite_url}.system.cpu.user\"\n")
-            cpu_total_used = file_write("#{host_dir}/cpu_total_used.graph", "title \"Combined CPU Total Used Usage\"
-vtitle \"percent\"
-area :none
-ymax 100 
-ymin 0
-description \"The combined CPU Total usage for all Exim Anti Spam servers\"
-
-field :total_used, :scale => 1,
-                  :color => \"red\",
-                  :alias => \"Cpu Total Uesd\",
-                  :data  => \"sumSeries(#{graphite_url}.system.cpu.sys,#{graphite_url}.system.cpu.user,#{graphite_url}.system.cpu.wait)\"\n")
-
-        when "memory"
-          memory = file_write("#{host_dir}/memory.graph","title \"Combined Memory Usage\"
-vtitle \"precent\"
-ymax 100 
-ymin 0
-area :none
-
-field :sys, :scale => 1,
-          :color => \"#1d953f\",
-          :alias => \"Memory Sys\",
-          :data  => \"#{graphite_url}.system.memory.mem_sys\"
-field :use, :scale => 1,
-          :color => \"#bed742\",
-          :alias => \"Memory used\",
-          :data  => \"#{graphite_url}.system.memory.mem_used\"
-field :swap, :scale => 1,
-            :color => \"#d71345\",
-            :alias => \"Swap Used\",
-            :data  => \"#{graphite_url}.system.memory.swap_used\"\n")
-        when "load"
-          load = file_write("#{host_dir}/load.graph", "title \"Combined Load\"
-vtitle \"int\"
-area :first
-
-field :loadone, :scale => 1,
-              :color => \"green\",
-              :alias => \"Load One\",
-              :data  => \"#{graphite_url}.system.load.onemonute\"
-field :loadfive, :scale => 1,
-                :color => \"#585eaa\",
-                :alias => \"Load Five\",
-                :data  => \"#{graphite_url}.system.load.fivemonute\"
-field :loadfifteen, :scale => 1,
-                  :color => \"#faa755\",
-                  :alias => \"Load Fifteen\",
-                  :data  => \"#{graphite_url}.system.load.fifteenmonute\"\n")
-        when "hba"
-          color_list = ["#2828FF","#73BF00","#AD5A5A","#AE0000","#66B3FF","#009393","#FF79BC","#009100","#D94600","#9F4D95","#9F4D95"]
-          hba_name, hba_i = [], 0
-          Dir["#{sys}/*"].each do |n|
-            hba_i += 1
-            hba_fc_name = n.split("/")[-1]
-            hba_name << hba_fc_name
-            #graphite_hba_url = "#{graphite_url}.#{hba_fc_name}"
-            hba = file_write("#{host_dir}/hba_#{hba_fc_name}.graph","title \"Combined hba #{hba_fc_name} network\"
-vtitle \"MByte\"
-area :none
-
-field :rmbs, :scale => 1,
-            :color => \"blue\",
-            :alias => \"Net OUT\",
-            :data  => \"#{graphite_url}.system.hba.#{hba_fc_name}.rmbs\"
-field :wmbs, :scale => 1,
-          :color => \"green\",
-          :alias => \"Net IN\",
-          :data  => \"#{graphite_url}.system.hba.#{hba_fc_name}.wmbs\"\n")          
-          end
-          puts count = (0..(hba_i.to_i - 1)).map {|x| "field :#{hba_name[x]}, :scale => 1, :color => \"#{color_list[x]}\", \n:alias => \"#{hba_name[x]} Iops\", :data  => \"#{graphite_url}.system.hba.#{hba_name[x]}.iops\""}
-          hba_iops = File.open("#{host_dir}/hba_iops.graph","w")
-          hba_iops.puts("title \"Combined hbas IOPS\"
-vtitle \"int\"
-area :none")
-hba_iops.puts(count)
-hba_iops.puts("\n")
-hba_iops.close
-        when "interface"
-          Dir["#{sys}/*"].each do |n|
-            infter_name = n.split("/")[-1]
-            unless ["lo","lo0","bond0"].include?(infter_name)
-              interface = file_write("#{host_dir}/interface-#{infter_name}.graph","title \"Combined Network #{infter_name} Usage\"
-vtitle \"bps\"
-area :none
-
-field :networkup, :color => \"green\",
-              :alias => \"Net Out\",
-              :data  => \"#{graphite_url}.system.interface.#{infter_name}.tx_Bytes\"
-
-field :networkdown, :color => \"blue\",
-                  :alias => \"Net In\",
-                  :data  => \"#{graphite_url}.system.interface.#{infter_name}.rx_Bytes\"\n")
-            end
-          end
-        when "disk"
-          io = file_write("#{host_dir}/disk_io.graph","title \"Combined Disk IO\"
-vtitle \"int\"
-area :none
-
-field :disks, :scale => 1,
-            :color => \"blue\",
-            :alias => \"Disk Quantity\",
-            :data  => \"#{graphite_url}.system.disk.disk_quantity\"
-field :io, :scale => 1,
-          :color => \"green\",
-          :alias => \"Disk IO\",
-          :data  => \"#{graphite_url}.system.disk.tps\"\n")
-        end 
+    io = file_write("#{host_path}/disk_io.graph","title \"Combined Disk IO\"\nvtitle \"int\"\narea :none\nfield :disks, :scale => 1,:color => \"blue\",:alias => \"Disk Quantity\",:data  => \"*.*.#{name}.disk.disk_quantity\"\nfield :io, :scale => 1, :color => \"green\", :alias => \"Disk IO\", :data  => \"*.*.#{name}.disk.tps\"\n")
+    hba_a = []
+    infter_name_a = []
+    vv.each do |s|
+      tmp_s = s.split(".")
+      case tmp_s[1]
+      when /interface/
+        infter_name = tmp_s[2]
+        infter_name_a << infter_name
+      when /hba/
+        hba_fc_name = tmp_s[2]
+        hba_a << hba_fc_name
       end
+    end
+
+    unless infter_name_a.uniq.empty?
+      infter_name_a.uniq.each do |int|
+        file_write("#{host_path}/interface-#{int}.graph","title \"Combined Network #{int} Usage\"\nvtitle \"Byte\"\narea :none\nfield :networkup, :color => \"green\",:alias => \"Net Out\",:data  => \"*.*.#{name}.interface.#{int}.tx_Bytes\"\nfield :networkdown, :color => \"blue\",:alias => \"Net In\",:data  => \"*.*.#{name}.interface.#{int}.rx_Bytes\"\n")
+      end
+    end
+    
+    unless hba_a.uniq.empty?
+      hba_a.uniq.each do |hbaname|
+        file_write("#{host_path}/hba_#{hbaname}.graph","title \"Combined hba #{hbaname} network\"\nvtitle \"MByte\"\narea :none\nfield :rmbs, :scale => 1,:color => \"blue\",:alias => \"Net OUT\",:data  => \"*.*.#{name}.hba.#{hbaname}.rmbs\"\nfield :wmbs, :scale => 1,:color => \"green\",:alias => \"Net IN\",:data  => \"*.*.#{name}.hba.#{hbaname}.wmbs\"\n")
+      end
+      count = hba_a.uniq.map{|hba_name| "field :#{hba_name}, :scale => 1, :alias => \"#{hba_name} Iops\", :data  => \"*.*.#{name}.hba.#{hba_name}.iops\""}
+      hba_iops = file_write("#{host_path}/hba_iops.graph","title \"Combined hbas IOPS\"\nvtitle \"int\"\narea :none\n"+count.join("\n"))
     end
   end
 end

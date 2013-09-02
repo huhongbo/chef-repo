@@ -12,10 +12,10 @@ when "debian", "fedora", "suse", "aix", "hpux"
   else
     raise "Could not locate the chef-client bin in any known path. Please set the proper path by overriding node['chef_client']['bin'] in a role."
   end
+  
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
-    user	"root"
     if platform?("aix") or platform?("hpux")
       provider Chef::Provider::Cron::Solaris
     end

@@ -1,0 +1,3 @@
+CRMAPP \[%{DATESTAMP:timestamp}\]\s+\[.+\]\s+\(%{WORD:operid}?\)\s+\(%{JAVACLASS:file}:%{POSINT:line}\).+\s+%{JAVACLASS:javaclass}
+CRMAPP1 \[%{DATESTAMP:timestamp}\].+
+JAVALOG \[%{DATESTAMP:timestamp}\].+\(%{JAVACLASS:file}:%{POSINT:line}\).+\s+%{JAVACLASS:javaclass}

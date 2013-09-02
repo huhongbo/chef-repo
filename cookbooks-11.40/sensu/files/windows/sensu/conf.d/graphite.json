@@ -16,6 +16,13 @@
 			"interval":60,
 			"standalone":true
 		},
+		"netstat": {
+			"type":"metric",
+			"handlers":["graphite"],
+			"command":"C:/opscode/chef/embedded/bin/ruby.exe C:/etc/sensu/plugins/system/win_futility.rb --scheme :::name:::",
+			"subscribers":["system"],
+			"interval":60
+		},
 		"load": {
 			"type":"metric",
 			"handlers":["graphite"],

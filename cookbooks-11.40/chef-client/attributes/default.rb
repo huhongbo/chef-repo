@@ -5,8 +5,8 @@
 require 'rbconfig'
 
 # chef server ip
-default["chef"]["server"]["ip"] = "10.211.55.16"
-default["chef"]["server"]["hostname"] = "chef-server"
+default["chef"]["server"]["ip"] = "127.0.0.1"
+default["chef"]["server"]["hostname"] = "dntmon"
 
 default["chef_client"]["interval"]    = "300"
 default["chef_client"]["splay"]       = "30"
@@ -16,14 +16,15 @@ default["chef_client"]["log_level"]   = :info
 default["chef_client"]["verbose_logging"] = true
 default["chef_client"]["conf_dir"]    = "/etc/chef"
 default["chef_client"]["bin"]         = "/usr/bin/chef-client"
-default["chef_client"]["server_url"]  = "https://#{node["chef"]["server"]["hostname"]}"
+default["chef_client"]["server_url"]  = "https://#{node["chef"]["server"]["ip"]}"
 default["chef_client"]["validation_client_name"] = "chef-validator"
+default["ruby"]["env_path"] = "/opt/chef/embedded/bin"
 
 
 
 default["chef_client"]["cron"] = {
-  "minute" => "0",
-  "hour" => "*/4",
+  "minute" => "15",
+  "hour" => "*",
   "path" => nil,
   "environment_variables" => nil,
   "log_file" => "/dev/null",
@@ -42,13 +43,13 @@ default["ohai"]["disabled_plugins"] = ["network_listeners"]
 
 case node['platform_family']
 when "aix"
-  default["ruby"]["gem"]["path"] = "/opt/freeware/ruby1.9/bin/gem"
+  default["ruby"]["env_path"] = "/opt/freeware/ruby1.9/bin"
   default["chef_client"]["init_style"]  = "aix"
   default["chef_client"]["run_path"]    = "/var/run"
   default["chef_client"]["cache_path"]  = "/var/chef/cache"
   default["chef_client"]["backup_path"] = "/var/chef/backup"
 when "hpux"
-  default["ruby"]["gem"]["path"] = "/usr/local/ruby1.9/bin/gem"
+  default["ruby"]["env_path"] = "/usr/local/ruby1.9/bin"
   default["chef_client"]["init_style"] = "hpux"
   default["chef_client"]["run_path"]   = "/var/run"
   default["chef_client"]["cache_path"] = "/var/chef/cache"
@@ -91,6 +92,7 @@ when "smartos"
   default["chef_client"]["method_dir"] = "/opt/local/lib/svc/method"
   default["chef_client"]["bin_dir"] = "/opt/local/bin"
 when "windows"
+  default["ruby"]["env_path"] = "C:/opscode/chef/embedded/bin"
   default["chef_client"]["init_style"]  = "winsw"
   default["chef_client"]["conf_dir"]    = "C:/etc/chef"
   default["chef_client"]["run_path"]    = "#{node["chef_client"]["conf_dir"]}/run"

@@ -21,23 +21,47 @@ unless content.include?("#{node["graphite"]["url"]}")
   hosts_stat.puts(content)
   hosts_stat.puts("#{node["graphite"]["ser_ip"]} #{node["graphite"]["url"]}")
   hosts_stat.close
+else
+  a_array = []
+  content.each_line do |i|
+    if i.include?(node["graphite"]["url"])
+      name = i.split(" ")[-1]
+      new_string = "#{node["graphite"]["ser_ip"]} #{name}"
+      a_array << new_string
+    else
+      a_array << i
+    end
+  end
+  hosts_stat = File.open(hosts_file,"w")
+  a_array.each do |cc|
+    hosts_stat.puts(cc)
+  end
+  hosts_stat.close
 end
 
-unless node.platform.eql?("windows")
+unless node.platform.include?("windows")
+  
   gem_package "sensu" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
+    action :remove
+  end
+  
+  gem_package "sensu-client" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc"
-    version "0.9.12"
+    version "0.9.13"
     action :install
   end
 
   gem_package "sensu-plugin" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc"
-    #version ""
+    version "0.1.7"
     action :install
   end
   gem_package "sigar" do
+    gem_binary "#{node["ruby"]["env_path"]}/gem" if ::File.exist?("#{node["ruby"]["env_path"]}/gem")
     options "--no-ri --no-rdoc"
-    #version ""
     action :install
   end
 end

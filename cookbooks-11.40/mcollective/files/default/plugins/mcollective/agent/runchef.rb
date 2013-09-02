@@ -19,7 +19,7 @@ module MCollective
           client = "/opt/freeware/ruby1.9/bin/chef-client"
         else
           client
-        end       
+        end
         run_chef = run("#{client}", :stdout => reply[:stdout], :stderr => reply[:stderr] ) 
         reply[:output] = run_chef
       end

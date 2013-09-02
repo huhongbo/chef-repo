@@ -45,6 +45,9 @@ if [ "$system" = "aix" ]; then
 elif [ "$system" = "hpux" ]; then
     sensu_exec=/usr/local/ruby1.9/bin/$prog
     pidfile=/var/run/$prog.pid
+elif [ -f /opt/chef/embedded/bin/$prog ]; then
+    sensu_exec=/opt/chef/embedded/bin/$prog
+    pidfile=/var/run/$prog.pid
 else
     sensu_exec=`which $prog`
     pidfile=/var/run/$prog.pid
