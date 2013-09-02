@@ -7,16 +7,6 @@ input {
   }
 }
 filter {
-  multiline{
-    type => "crm-bg"
-    pattern => "(^\(\w+\).+)|(^$)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)|(^\s{1,})|(^java)"
-    what => "previous"
-  }
-  grok {
-    type => "crm-bg"
-    pattern => ["%{JAVALOG}"]
-    add_tag => ["grokked"]
-  }
 } 
 output {
   redis {

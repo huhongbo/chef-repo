@@ -11,7 +11,7 @@ my $pack_nm;
 my $prefile = "/tmp/check.date";
 my $current = strftime("%m%d%H%M%y\n", localtime(time));
 my $host = "<%= node["logstash"]["host"] %>";
-my $port = "514";
+my $port = "515";
 
 if ( -e $prefile ) {
     chomp($cur = `cat $prefile`);
@@ -44,7 +44,7 @@ open (FH, "$cmd|") or die;
 	open my $fh, ">", $tmp;
 
 	local $/ = "\n";
-#	print $fh "$seg\n";close $fh;
+	print $fh "$seg\n";close $fh;
 
 	open my $th, $tmp or die "can't open: $!\n";
 	my ($label, $date, $type, $reso, $desc, $line, $hostname, $class); 
