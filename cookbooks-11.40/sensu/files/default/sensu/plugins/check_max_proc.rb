@@ -34,7 +34,7 @@ class CheckProc < Sensu::Plugin::Check::CLI
     :exit => 0
     
     def sprintf_int(num)
-      return num.nil? ? 0 : sprintf("%.0f", num.to_i * 100)
+      return sprintf("%.0f", num.to_f * 100)
     end
     
     def user_max_count_value(arry=[])
@@ -47,8 +47,8 @@ class CheckProc < Sensu::Plugin::Check::CLI
     
     def user_proc(critical,warning)
       uname = %x[uname]
-      case uname
-      when /HP-UX/ 
+      case uname.to_s
+      when /HP-UX/
         user = %x[UNIX95=1 ps -Ax -o user| grep -v USER]
         max = %x[sysdef|grep nproc].split(" ")[1].to_i
       when /AIX/

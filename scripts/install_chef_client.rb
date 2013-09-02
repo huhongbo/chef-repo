@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # code dn365
-# v 0.1
+# v 0.2
 # install chef client v 11.40
 
 require "optparse"
@@ -26,7 +26,7 @@ def write_hosts(ip,hostname)
   host_r = File.read(host_path)
   host_w = File.open(host_path,"w")
   host_w.puts(host_r)
-  host_w.puts("#{ip} #{hostname}") unless host_r.include?("#{ip} #{hostname}")
+  host_w.puts("#{ip} #{hostname}")
   host_w.puts("#{ip} infoboard.dntmon.com") unless host_r.include?("infoboard.dntmon.com")
   host_w.puts("#{ip} gemserver") unless host_r.include?("gemserver")
   host_w.close
@@ -45,22 +45,38 @@ if options[:host] and options[:ip]
   vk = File.open("/etc/chef/#{file_key}","w")
   vk.puts(content)
   vk.close
-  
-  gem_bin = "gem"
-  if (gem_bin_path=%x{which gem}.chomp) && File.executable?(gem_bin_path)
-    gem_bin = gem_bin_path
+  os_type = %x(uname)
+  case os_type.to_s
+  when /HP-UX/
+    bin_path = "/usr/local/ruby1.9/bin"
+    gem_bin = "#{bin_path}/gem"
+    client_bin = "#{bin_path}/chef-client"
+  when /AIX/
+    bin_path = "/opt/freeware/ruby1.9/bin"
+    gem_bin = "#{bin_path}/gem"
+    client_bin = "#{bin_path}/chef-client"
+  when /Linux/
+    bin_path = "/usr/bin"
+    bin_path = "/opt/chef/embedded/bin" if File.directory?("/opt/chef/embedded/bin")
+    gem_bin = "#{bin_path}/gem"
+    client_bin = "/opt/chef/bin/chef-client"
+  else
+    gem_bin = "gem"
+    client_bin = "chef-client"
   end
-  gem_s = system("#{gem_bin} sources -l")
+  
+  
+  
+  #gem_s = system("#{gem_bin} sources -l").to_s
   #unless gem_s.include?("gemserver")
-    system("#{gem_bin} sources -a http://gemserver/")
-    system("#{gem_bin} sources -r http://rubygems.org/")
-    system("#{gem_bin} sources -r https://rubygems.org/")
-    #end
-  
-  client_bin = "chef-client"
-  if (chef_in_path=%x{which chef-client}.chomp) && File.executable?(chef_in_path)
-    client_bin = chef_in_path
-  end
+  #system("#{gem_bin} uninstall -aIx ohai")
+  system("#{gem_bin} sources -a http://gemserver/")
+  system("#{gem_bin} sources -r http://rubygems.org/")
+  system("#{gem_bin} sources -r https://rubygems.org/")
+  #system("#{gem_bin} install ohai")
+  system("#{gem_bin} install sigar --no-ri --no-rdoc")
+  system("#{gem_bin} install chef --no-ri --no-rdoc")
+  #end
   
   system("#{client_bin} -S https://#{options[:ip]} -o role[default_client]")
 else

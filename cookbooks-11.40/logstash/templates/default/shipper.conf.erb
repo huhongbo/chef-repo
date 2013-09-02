@@ -1,0 +1,29 @@
+input {
+  file {
+    type => "crm-bg"
+    path => ["/app/*/app/*/*/*/log/*.log"]
+    charset => "GBK"
+    sincedb_path => "/opt/logstash/.sincedbcrm"
+  }
+}
+filter {
+  multiline{
+    type => "crm-bg"
+    pattern => "(^\(\w+\).+)|(^$)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)|(^\s{1,})|(^java)"
+    what => "previous"
+  }
+  grok {
+    type => "crm-bg"
+    pattern => ["%{JAVALOG}"]
+    add_tag => ["grokked"]
+  }
+} 
+output {
+  redis {
+    host => [ "10.78.170.11", "10.78.170.12", "10.78.170.13" ]
+    data_type => "list"
+    batch => "true"
+    batch_events => "50"
+    key => "logstash"
+  }
+}

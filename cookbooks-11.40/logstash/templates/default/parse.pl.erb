@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+use strict;
+use POSIX qw(strftime);
+use Socket;
+
+my $cur;
+my $cmd;
+my $pretime;
+my $address;
+my $pack_nm;
+my $prefile = "/tmp/check.date";
+my $current = strftime("%m%d%H%M%y\n", localtime(time));
+my $host = "<%= node["logstash"]["host"] %>";
+my $port = "514";
+
+if ( -e $prefile ) {
+    chomp($cur = `cat $prefile`);
+    if ($cur) {
+#	print $cur,"\n";
+	$cmd = "errpt -a -s $cur";
+        open my $t, ">", $prefile; print $t $current; close $t;
+    }
+    else {
+        $cmd = "errpt -a -s $current";
+    }
+}
+else {
+    open my $t, ">", $prefile; print $t $current; close $t;
+    $cmd = "errpt -a -s $current";
+}
+
+print "$cmd\n";
+
+open (FH, "$cmd|") or die;
+{
+    my $tmp = "/tmp/errpt.tmp";
+
+    local $/ = undef;
+    my $hole = <FH>;
+
+    my @h = split /\-\-+/, $hole;
+	
+    foreach my $seg (@h) {
+	open my $fh, ">", $tmp;
+
+	local $/ = "\n";
+#	print $fh "$seg\n";close $fh;
+
+	open my $th, $tmp or die "can't open: $!\n";
+	my ($label, $date, $type, $reso, $desc, $line, $hostname, $class); 
+
+	while (<$th>) {
+	    chomp;
+	    next if /^\s*$/;
+	    if (/LABEL:\s+(\w+)/) { $label = $1; next; }
+	    if (/Date\/Time:\s+(\w{3}\s+\w{3}\s+\d+\s+\d+\:\d+\:\d+\s+\w{5,9}\s+\d{4})/) { $date = $1; next; }
+	    if (/Node\sId:\s+(\w+)/) { $hostname = $1; next; }
+	    if (/Class:\s+(\w+)/) { $class = $1; next; }
+	    if (/Type:\s+(\w+)/) { $type = $1; next; }
+	    if (/Resource\sName:\s+(\w+(:\w+)?)/) { $reso = $1; next; }
+	    if (/Description/) { $line = $.; next; }
+	    if ($. == $line + 1) { $desc = $_ unless /^\s*$/; }
+	    if (/DESCRIPTION/) { $line = $.; }
+	    if ($. == $line + 1) { $desc = $_ unless /^\s*$/; }
+	}
+	if ($label && $date && $hostname && $class && $type && $reso && $desc) {
+	    my %mons = (
+             	'Feb' => '02', 'Mar' => '03',
+             	'Apr' => '04', 'May' => '05',
+             	'Jun' => '06', 'Jul' => '07',
+             	'Aug' => '08', 'Sep' => '09',
+             	'Oct' => '10', 'Nov' => '11',
+             	'Dec' => '12', 'Jan' => '01',
+	    );
+	    my @t = split /\s+/, $date;
+	    my $time = "$t[5]-$mons{$t[1]}-$t[2] $t[3]";
+            my $data = "$hostname,$label,$time,$type,$class,$reso,$desc\n";
+	    print $data;
+
+	    # Send UDP Data.......
+	    $pack_nm = inet_aton($host);
+	    $address = sockaddr_in($port, $pack_nm);
+	    socket(SOCK,AF_INET,SOCK_DGRAM,17);
+	    send(SOCK,$data,0,$address);
+	    close SOCK;
+        }
+	close $th;
+	unlink $tmp;
+    }
+
+}
+
+close FH;
