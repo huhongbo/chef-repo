@@ -96,7 +96,7 @@ service "logstash" do
     provider Chef::Provider::Service::Init
   end
   #supports :restart => true, :status => true
-  action :start
+  action :nothing
 end
 
 
